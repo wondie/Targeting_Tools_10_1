@@ -17,6 +17,8 @@
 """
 
 import os, sys, csv, re, time, arcpy, shutil, ntpath, subprocess, traceback
+import arcgisscripting, string, os, sys
+gp = arcgisscripting.create(9.5)
 from itertools import *
 
 arcpy.env.overwriteOutput = True
@@ -84,8 +86,14 @@ class TargetingTool(object):
         in_fc = in_parameter.valueAsText.replace("\\", "/")
         in_fc_spataial_ref = arcpy.Describe(in_fc).SpatialReference
         warning_msg = "{0} spatial reference is different from the input {1}"
-        self.setSpatialWarning(in_fc_spataial_ref, ras_ref, in_fc_param,
-                               warning_msg, in_fc, prev_input)
+        self.setSpatialWarning(
+            in_fc_spataial_ref,
+            ras_ref,
+            in_fc_param,
+            warning_msg,
+            in_fc,
+            prev_input
+        )
 
     def setSpatialWarning(self, in_ras_ref, other_ref, tool_para, warning_msg,
                           new_in_ras, prev_in_ras):
@@ -243,16 +251,16 @@ class TargetingTool(object):
             Return: None
         """
         mxd = arcpy.mapping.MapDocument("CURRENT")
-        df = arcpy.mapping.ListDataFrames(mxd, "*")[
-            0]  # Get the first data frame
+        df = arcpy.mapping.ListDataFrames(mxd, "*")[0]  # Get the first data frame
         # Load raster dataset to the current mxd
         lyr = ""
         if isinstance(out_ras, list):  # Check if it is a list
             for data_obj in out_ras:
                 lyr = arcpy.mapping.Layer(data_obj)
+                arcpy.mapping.AddLayer(df, lyr, "AUTO_ARRANGE")
         else:
             lyr = arcpy.mapping.Layer(out_ras)
-        arcpy.mapping.AddLayer(df, lyr, "AUTO_ARRANGE")
+            arcpy.mapping.AddLayer(df, lyr, "AUTO_ARRANGE")
 
     def calculateStatistics(self, in_raster):
         """
@@ -268,6 +276,11 @@ class TargetingTool(object):
                 arcpy.CalculateStatistics_management(in_raster, "1", "1", "",
                                                      "OVERWRITE")
             return arcpy.Raster(in_raster)
+
+    def get_srid_from_file(self, first_in_raster):
+        dsc = arcpy.Describe(first_in_raster)
+        spatial_ref = dsc.spatialReference
+        return spatial_ref
 
 
 class LandSuitability(TargetingTool):
@@ -1814,6 +1827,7 @@ class LandSimilarity(TargetingTool):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Land Similarity"
         self.description = ""
+        self.spatial_ref = None
         self.canRunInBackground = False
         self.parameters = [
             parameter("Input raster", "in_raster", "Raster Layer",
@@ -1823,8 +1837,8 @@ class LandSimilarity(TargetingTool):
                       parameterType='Optional'),
             parameter("R executable", "r_exe", "File"),
             parameter("Output Mahalanobis raster", "out_raster_mnobis",
-                      'Raster Layer', direction='Output'),
-            parameter("Output MESS raster", "out_raster_mess", 'Raster Layer',
+                      'GPString', direction='Output'),
+            parameter("Output MESS raster", "out_raster_mess", 'GPString',
                       direction='Output')
         ]
 
@@ -1862,6 +1876,8 @@ class LandSimilarity(TargetingTool):
                 parameters: Parameters from the tool.
             Returns: Internal validation messages.
         """
+        # output to the screen
+
         if parameters[0].value:
             prev_input = ""
             ras_ref = []
@@ -1942,9 +1958,15 @@ class LandSimilarity(TargetingTool):
                                                                "/")  # Get mahalanobis output
             out_mess_ras = parameters[5].valueAsText.replace("\\",
                                                              "/")  # Get mess output
-            ras_temp_path = ntpath.dirname(
-                out_mnobis_ras)  # Get path without file name
+            # ras_temp_path = ntpath.dirname(
+            #     out_mnobis_ras)  # Get path without file name
+            ras_temp_path = arcpy.env.scratchFolder.replace("\\", "/")
+
+            # os.path.join(arcpy.env.scratchFolder)
+            #TODO convert /Temp/ to uuid
             ras_temp_path += "/Temp/"
+            out_mnobis_ras_path = ras_temp_path + out_mnobis_ras
+            out_mess_ras_path = ras_temp_path + out_mess_ras
             # Create temporary directory if it doesn't exist
             if not os.path.exists(ras_temp_path):
                 os.makedirs(ras_temp_path)
@@ -1962,11 +1984,11 @@ class LandSimilarity(TargetingTool):
             if parameters[2].value:
                 in_fc = super(LandSimilarity, self).getInputFc(parameters[2])[
                     "in_fc"]
-                extent = arcpy.Describe(
-                    in_fc).extent  # Get feature class extent
-                self.createValueSample(parameters, in_fc_pt, ras_temp_path,
-                                       in_fc,
-                                       extent)  # Create raster cell value sample
+                extent = arcpy.Describe(in_fc).extent  # Get feature class extent
+                # Create raster cell value sample
+                self.createValueSample(
+                    parameters, in_fc_pt, ras_temp_path, in_fc, extent
+                )
             else:
                 self.createValueSample(parameters, in_fc_pt, ras_temp_path,
                                        in_fc=None,
@@ -1975,33 +1997,21 @@ class LandSimilarity(TargetingTool):
                                 ras_temp_path)  # Delete temporary files
             arcpy.AddMessage("Joining {0} to {1} \n".format(in_fc_pt,
                                                             ras_temp_path + "temp.dbf"))
-            arcpy.JoinField_management(in_fc_pt, "FID",
-                                       ras_temp_path + "temp.dbf", "OID",
-                                       "")  # Join tables
+            arcpy.JoinField_management(
+                in_fc_pt, "FID", ras_temp_path + "temp.dbf", "OID", ""
+            )  # Join tables
             out_csv = ras_temp_path + "temp.csv"
-            self.writeToCSV(in_fc_pt,
-                            out_csv)  # Write feature class table to CSV file
+            self.writeToCSV(in_fc_pt, out_csv)  # Write feature class table to CSV file
             arcpy.management.Delete(in_fc_pt)  # Delete vector
             self.createRScript(parameters, ras_temp_path)  # Create R script
-            self.runCommand(r_exe_path, ras_temp_path)  # Run R command
-            self.asciiToRasterConversion(parameters,
-                                         ras_temp_path)  # ASCII to raster conversion
-            shutil.rmtree(ras_temp_path)  # Delete directory
 
-            # Get raster and load to the current mxd
-            out_ras = ""
-            if arcpy.Exists(out_mnobis_ras) and arcpy.Exists(out_mess_ras):
-                out_ras = [out_mnobis_ras, out_mess_ras]
-            else:
-                if arcpy.Exists(out_mnobis_ras):
-                    out_ras = out_mnobis_ras
-                elif arcpy.Exists(out_mess_ras):
-                    out_ras = out_mess_ras
-            super(LandSimilarity, self).loadOutput(
-                out_ras)  # Load output to current MXD
-            arcpy.RefreshCatalog(
-                ntpath.dirname(out_mnobis_ras))  # Refresh folder
-            return
+            self.runCommand(r_exe_path, ras_temp_path)  # Run R command
+
+            self.asciiToRasterConversion(parameters, ras_temp_path)  # ASCII to raster conversion
+            # shutil.rmtree(ras_temp_path)  # Delete directory
+
+            self.load_output_to_mxd(out_mess_ras_path, out_mnobis_ras_path)
+
         except Exception as ex:
             # tb = sys.exc_info()[2]
             # tbinfo = traceback.format_tb(tb)[0]
@@ -2010,6 +2020,50 @@ class LandSimilarity(TargetingTool):
             # arcpy.AddError(pymsg)
             # arcpy.AddError(msgs)
             arcpy.AddMessage('ERROR: {0} \n'.format(ex))
+
+    def load_output_to_mxd(self, out_mnobis_ras_path, out_mess_ras_path):
+        """
+        Get raster and load to the current mxd
+        :param out_mnobis_ras_path: Mahalanobis output path.
+        :type out_mnobis_ras_path: String
+        :param out_mess_ras_path: MESS output path.
+        :type out_mess_ras_path: String
+        :return:
+        :rtype:
+        """
+        out_ras = ""
+        if arcpy.Exists(out_mnobis_ras_path) and arcpy.Exists(
+                out_mess_ras_path):
+            # Define spatial reference system
+            arcpy.DefineProjection_management(
+                out_mnobis_ras_path, self.spatial_ref)
+            arcpy.DefineProjection_management(
+                out_mess_ras_path,
+                self.spatial_ref
+            )
+
+            out_ras = [out_mnobis_ras_path, out_mess_ras_path]
+        else:
+            if arcpy.Exists(out_mnobis_ras_path):
+                # Define spatial reference system
+                arcpy.DefineProjection_management(
+                    out_mnobis_ras_path, self.spatial_ref
+                )
+                out_ras = out_mnobis_ras_path
+
+            elif arcpy.Exists(out_mess_ras_path):
+                # Define spatial reference system
+                arcpy.DefineProjection_management(
+                    out_mess_ras_path,
+                    self.spatial_ref
+                )
+                out_ras = out_mess_ras_path
+        # Load output to current MXD
+        super(LandSimilarity, self).loadOutput(out_ras)
+        # Refresh folder
+        arcpy.RefreshCatalog(
+            ntpath.dirname(out_mnobis_ras_path)
+        )
 
     def copyDataset(self, ras_temp_path, source_file, new_file):
         """ Copy dataset from one source to another
@@ -2024,8 +2078,8 @@ class LandSimilarity(TargetingTool):
             new_file = ntpath.basename(new_file)
         else:
             new_file = ntpath.basename(source_file)
-        arcpy.Copy_management(source_file,
-                              ras_temp_path + new_file)  # Copy point layer to a temporary directory
+        # Copy point layer to a temporary directory
+        arcpy.Copy_management(source_file, ras_temp_path + new_file)
         new_file = ras_temp_path + new_file
         return new_file
 
@@ -2066,21 +2120,36 @@ class LandSimilarity(TargetingTool):
             i = row_count + 1
             if extent is not None:
                 arcpy.AddMessage(
-                    "Clipping {0} \n".format(ntpath.basename(in_ras_file)))
-                arcpy.Clip_management(in_ras_file,
-                                      "{0} {1} {2} {3}".format(extent.XMin,
-                                                               extent.YMin,
-                                                               extent.XMax,
-                                                               extent.YMax),
-                                      ras_temp_path + "ras_mask_" + str(i),
-                                      in_fc, "#", "ClippingGeometry")
+                    "Clipping {0} \n".format(ntpath.basename(in_ras_file))
+                )
+                arcpy.AddMessage(
+                    "Grid length Path: {}, Filename: {}".format(
+                        in_ras_file, ras_temp_path + "\\mask_" + str(i)
+                    )
+                )
+                arcpy.Clip_management(
+                    in_ras_file,
+                    "{0} {1} {2} {3}".format(
+                      extent.XMin,
+                      extent.YMin,
+                      extent.XMax,
+                      extent.YMax
+                    ),
+                    ras_temp_path + "mask_" + str(i),
+                    in_fc, "#", "ClippingGeometry"
+                )
+
                 if num_rows > 1:
                     if i == 1:
-                        first_in_raster = ras_temp_path + "ras_mask_" + str(i)
-                in_ras_mask = ras_temp_path + "ras_mask_" + str(i)
-                sample_ras = self.convertRasterToASCII(num_rows, ras_temp_path,
-                                                       i, first_in_raster,
-                                                       in_ras_mask)  # Convert raster to ASCII
+                        first_in_raster = ras_temp_path + "mask_" + str(i)
+                in_ras_mask = ras_temp_path + "mask_" + str(i)
+                # Convert raster to ASCII
+                sample_ras = self.convertRasterToASCII(
+                    num_rows, ras_temp_path,
+                    i, first_in_raster,
+                    in_ras_mask
+                )
+
                 sample_in_ras.append(sample_ras)
             else:
                 if num_rows > 1:
@@ -2106,16 +2175,16 @@ class LandSimilarity(TargetingTool):
             Returns:
                 sample_ras: Raster to be used in creating a cell value sample table
         """
-        sample_ras = ""
         if num_rows > 1:
             if i == 1:
                 sample_ras = first_in_raster
                 arcpy.AddMessage("Converting {0} to ASCII file {1} \n".format(
                     first_in_raster,
                     ras_temp_path + "tempAscii_" + str(i) + ".asc"))
-                arcpy.RasterToASCII_conversion(first_in_raster,
-                                               ras_temp_path + "tempAscii_" + str(
-                                                   i) + ".asc")
+                arcpy.RasterToASCII_conversion(
+                    first_in_raster,
+                    ras_temp_path + "tempAscii_" + str(i) + ".asc"
+                )
             else:
                 in_mem_raster = self.applyEnvironment(first_in_raster,
                                                       in_raster)
@@ -2131,9 +2200,9 @@ class LandSimilarity(TargetingTool):
         else:
             sample_ras = in_raster
             arcpy.AddMessage(
-                "Converting {0} to ASCII file {1} \n".format(in_raster,
-                                                             ras_temp_path + "tempAscii_" + str(
-                                                                 i) + ".asc"))
+                "Converting {0} to ASCII file {1} \n".format(
+                    in_raster, ras_temp_path + "tempAscii_" + str(i) + ".asc")
+            )
             arcpy.RasterToASCII_conversion(in_raster,
                                            ras_temp_path + "tempAscii_" + str(
                                                i) + ".asc")
@@ -2150,6 +2219,9 @@ class LandSimilarity(TargetingTool):
         arcpy.env.cellSize = first_in_raster
         arcpy.env.outputCoordinateSystem = first_in_raster
         arcpy.env.snapRaster = first_in_raster
+
+        self.spatial_ref = self.get_srid_from_file(first_in_raster)
+
         arcpy.AddMessage(
             "Applying environment settings for {0}".format(in_raster))
         in_raster = arcpy.Raster(in_raster)
@@ -2163,9 +2235,9 @@ class LandSimilarity(TargetingTool):
             Returns: None
         """
         for i in xrange(1, len(parameters[0].values)):
-            if arcpy.Exists(ras_temp_path + "ras_mask_" + str(i)):
+            if arcpy.Exists(ras_temp_path + "mask_" + str(i)):
                 super(LandSimilarity, self).deleteFile(ras_temp_path,
-                                                       "ras_mask_" + str(
+                                                       "mask_" + str(
                                                            i))  # Delete temporary files
             if arcpy.Exists(ras_temp_path + "ras_envset_" + str(i)):
                 super(LandSimilarity, self).deleteFile(ras_temp_path,
@@ -2250,6 +2322,7 @@ class LandSimilarity(TargetingTool):
             Returns: None
         """
         r_cmd = '"' + r_exe_path + '" --vanilla --slave --file="' + ras_temp_path + 'out_script.r"'  # r command
+        arcpy.AddMessage(r_cmd)
         arcpy.AddMessage("Running similarity analysis \n")
         subprocess.call(r_cmd, shell=False)  # Open shell and run R command
 
@@ -2260,29 +2333,40 @@ class LandSimilarity(TargetingTool):
                 ras_temp_path: Temporary folder
             Returns: None
         """
-        r_exe_file = parameters[3].valueAsText.replace("\\",
-                                                       "/")  # Get R.exe file path
-        out_mnobis_ras = parameters[4].valueAsText.replace("\\",
-                                                           "/")  # Get mahalanobis output
-        out_mess_ras = parameters[5].valueAsText.replace("\\",
-                                                         "/")  # Get mess output
+        r_exe_file = parameters[3].valueAsText.replace("\\", "/")  # Get R.exe file path
+        out_mnobis_ras = parameters[4].valueAsText.replace("\\", "/")  # Get mahalanobis output
+        out_mess_ras = parameters[5].valueAsText.replace("\\", "/")  # Get mess output
+        maha_ascii_path = ras_temp_path + "MahalanobisDist.asc"
+        mess_ascii_path = ras_temp_path + "MESS.asc"
+        out_mnobis_ras_path = ras_temp_path + out_mnobis_ras
+        out_mess_ras_path = ras_temp_path + out_mess_ras
         arcpy.AddMessage("ASCII conversion of {0} to raster {1} \n".format(
-            ras_temp_path + "MahalanobisDist.asc", out_mnobis_ras))
-        arcpy.ASCIIToRaster_conversion(ras_temp_path + "MahalanobisDist.asc",
-                                       out_mnobis_ras, "INTEGER")
-        if os.path.isfile(ras_temp_path + "MESS.asc"):
-            arcpy.AddMessage("ASCII conversion of {0} to raster {1} \n".format(
-                ras_temp_path + "MESS.asc", out_mess_ras))
-            arcpy.ASCIIToRaster_conversion(ras_temp_path + "MESS.asc",
-                                           out_mess_ras,
-                                           "INTEGER")  # Process ASCII to raster
-        else:
-            r_version = r_exe_file.rsplit("/", 3)[0]
-            r_modEvA = r_version + "/library/modEvA"
-            if not os.path.isdir(r_modEvA):
-                arcpy.AddError(
-                    'Error: {0} package missing. Connect to the internet and run the tool again. Alternatively download and install "modEvA" package. \n'.format(
-                        r_modEvA))
+            maha_ascii_path, out_mnobis_ras_path)
+        )
+        # dsc = gp.Describe(ascii_name)  # Gets the Description about the ascii file
+        # maha_ascii_in = dsc.CatalogPath  # Gets the Full Catalog Path of the ascii file
+        arcpy.ASCIIToRaster_conversion(
+            maha_ascii_path, out_mnobis_ras_path, "INTEGER"
+        )
+        if os.path.isfile(mess_ascii_path):
+            arcpy.AddMessage(
+                "ASCII conversion of {0} to raster {1} \n".format(
+                    mess_ascii_path, out_mess_ras_path
+                )
+            )
+            # Process ASCII to raster
+            arcpy.ASCIIToRaster_conversion(
+                mess_ascii_path, out_mess_ras_path, "INTEGER"
+            )
+
+        r_version = r_exe_file.rsplit("/", 3)[0]
+        r_modEvA = r_version + "/library/modEvA"
+        if not os.path.isdir(r_modEvA):
+            arcpy.AddError(
+                'Error: {0} package missing. Connect to the internet and '
+                'run the tool again. Alternatively download and install '
+                '"modEvA" package. \n'.format(r_modEvA)
+            )
 
     def getRasterFile(self, in_val_raster):
         """ Get row statistics parameters from the value table
