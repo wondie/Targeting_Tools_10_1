@@ -233,13 +233,6 @@
                     are used to find a suitable area.
                 </pythonReference>
 			</param>
-
-
-
-
-
-
-
 			<param name="min_val1" displayname="Minimum Value 1" type="Required" datatype="Double" expression="min_val1">
 				<dialogReference>
                     Min Value — An editable field that initially has the input
