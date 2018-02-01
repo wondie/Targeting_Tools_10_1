@@ -345,7 +345,7 @@ class LandSuitability(TargetingTool):
             parameter("Output extent", "out_extent", "Feature Layer",
                 parameterType='Optional'
             ),
-            parameter("Output raster", "out_raster", 'DERasterDataset',
+            parameter("Output raster", "out_raster", 'Raster Layer',
                 parameterType='Derived'
             )
         ]
