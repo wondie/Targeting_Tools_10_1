@@ -299,6 +299,26 @@ class TargetingTool(object):
         return spatial_ref
 
 
+    def copyDataset(self, ras_temp_path, source_file, new_file):
+        """ Copy dataset from one source to another
+            Args:
+                ras_temp_path: Temporary folder
+                source_file: Source file
+                new_file: New file
+            Returns:
+                new_file: New file path
+        """
+        if new_file is not None:
+            new_file = ntpath.basename(new_file)
+        else:
+            new_file = ntpath.basename(source_file)
+        # Copy point layer to a temporary directory
+        arcpy.Copy_management(source_file, ras_temp_path + new_file)
+        new_file = ras_temp_path + new_file
+        return new_file
+
+
+
 class LandSuitability(TargetingTool):
     def __init__(self):
         # TODO make sure all outputs are saved in scratch workspace folder
@@ -514,6 +534,7 @@ class LandSuitability(TargetingTool):
             # in_raster = parameters[0]
 
             in_raster = self.prepare_value_table(parameters)
+
             if parameters[0].altered:
                 # The number of rows in the table
                 # num_rows = len(in_raster.values)
@@ -672,7 +693,7 @@ class LandSuitability(TargetingTool):
                 ras_combine, row_count in self.getRowValue(
                 in_raster, ras_max_min):
                 i += 1
-                arcpy.AddMessage('print {}'.format(ras_file.valueAsText))
+
                 self.rasterDivide(opt_from_val.valueAsText, minVal.value,
                                   "ras_min2_" + str(i),
                                   "ras_min3_" + str(i), ras_temp_path,
@@ -1106,7 +1127,7 @@ class LandStatistics(TargetingTool):
         self.value_table_cols = 3
         self.scratch_path = arcpy.env.scratchFolder.replace("\\", "/")
         self.parameters = []
-
+        self.spatial_ref = None
         # output = parameter("Output Folder", "out_table", "Workspace",
         #           direction="input")
         # self.parameters.append(output)
@@ -1145,7 +1166,7 @@ class LandStatistics(TargetingTool):
                       parameterType="Optional"),
             parameter("Number of Classes", "num_classes", "Long",
                       parameterType='Optional'),
-            parameter("Input remap table", "in_remap_table_view", "Table View",
+            parameter("Input remap table", "in_remap_table_view", "Record Set",
                       parameterType='Optional'),
             parameter("From value field", "from_val_field", "Field",
                       parameterType='Optional'),
@@ -1188,13 +1209,14 @@ class LandStatistics(TargetingTool):
             if i in [10, 13, 16, 19, 22, 25, 28, 31, 34, 37]:
                 if param.value != '' or param.value != "#":
                     self.parameters[i].filter.type = 'ValueList'
-
+                    #TODO remove unused parameters
                     self.parameters[i].filter.list = [
-                        "ALL", "MEAN", "MAJORITY", "MAX","MAXIMUM", "MEDIAN",
-                        "MINIMUM", "MIN", "MINORITY", "RANGE","SD",
-                        "SN", "SR", "STDEV", "STANDARD DEVIATION", "STD",
+                        "ALL", "MEAN", "MAJORITY", "MAXIMUM", "MEDIAN",
+                        "MINIMUM", "MINORITY", "RANGE",
+                        "STANDARD DEVIATION",
                         "SUM", "VARIETY"
                     ]
+
             # if i in [11, 15, 19, 23, 27, 31, 35, 39, 43, 47]:
             #     if param.value != '' or param.value != "#":
             #         self.parameters[i].filter.type = 'ValueList'
@@ -1257,15 +1279,17 @@ class LandStatistics(TargetingTool):
             self.disableEnableParameter(parameters, 1, 7, False,
                                         enabled_val=True)
         # Set field values
-        if parameters[7].value and parameters[7].altered:
-            in_fc_field = [f.name for f in
-                           arcpy.ListFields(parameters[7].value,
-                                            field_type="String")]  # Get string field headers
-            parameters[8].filter.list = in_fc_field  # Updated filter list
-            if parameters[8].value is None:
-                if len(in_fc_field) > 0:
-                    parameters[8].value = in_fc_field[
-                        0]  # Set initial field value
+        if parameters[7].value is not None and parameters[7].altered:
+            #TODO add this check on desktop too.
+            if arcpy.Exists(parameters[7].value):
+                in_fc_field = [f.name for f in
+                               arcpy.ListFields(parameters[7].value,
+                                                field_type="String")]  # Get string field headers
+                parameters[8].filter.list = in_fc_field  # Updated filter list
+                if parameters[8].value is None:
+                    if len(in_fc_field) > 0:
+                        parameters[8].value = in_fc_field[0] # Set initial field value
+
         else:
             parameters[8].filter.list = []  # Empty filter list
             parameters[8].value = ""  # Reset field value to None
@@ -1337,8 +1361,9 @@ class LandStatistics(TargetingTool):
             if parameters[0].value and parameters[0].altered:
                 in_fc_para = parameters[7]
                 in_fc = parameters[7].valueAsText.replace("\\", "/")
+                # Get spatial reference of input value raster
                 in_fc_ref = arcpy.Describe(
-                    in_fc).SpatialReference  # Get spatial reference of input value raster
+                    in_fc).SpatialReference
                 warning_msg = "{0} spatial reference is different from the input {1}"
                 super(LandStatistics, self).setSpatialWarning(in_ras_ref,
                                                               in_fc_ref,
@@ -1348,6 +1373,7 @@ class LandStatistics(TargetingTool):
                                                               in_raster)  # Set spatial reference warning
         if parameters[9].value and parameters[9].altered:
             in_val_raster = self.prepare_value_table(parameters)
+            first_in_raster = in_val_raster[0][0]
             out_table_char = (" ", "_", "-")
             table_short_char = ("_")
             prev_ras_val = []
@@ -1364,7 +1390,7 @@ class LandStatistics(TargetingTool):
                 # Input raster value validation
                 if len(prev_ras_val) > 0:
                     super(LandStatistics, self).uniqueValueValidator(
-                        prev_ras_val, ras_val_file, in_val_raster,
+                        prev_ras_val, ras_val_file, first_in_raster,
                         field_id=False)  # Set duplicate input warning
                     prev_ras_val.append(ras_val_file)
                 else:
@@ -1376,7 +1402,7 @@ class LandStatistics(TargetingTool):
                     warning_msg = "{0} spatial reference is different from the input {1}"
                     # Set spatial reference warning
                     super(LandStatistics, self).setSpatialWarning(
-                        in_ras_ref, ras_val_ref, in_val_raster, warning_msg,
+                        in_ras_ref, ras_val_ref, first_in_raster, warning_msg,
                         ras_val_file, in_raster)
                 # Set error message for statistics type
                 # self.statisticsTypeErrorMessage(in_val_raster, stats_type)
@@ -1391,19 +1417,19 @@ class LandStatistics(TargetingTool):
                 # if len(in_val_raster) > 1:
                 # Validated field identifier input
                 # Value table field identifier validator
-                self.fielIdValidator(table_short_name, in_val_raster,
+                self.fielIdValidator(table_short_name, first_in_raster,
                                      table_short_char)
                 if len(prev_table_short_val) > 0:
                     super(LandStatistics, self).uniqueValueValidator(
                         prev_table_short_val, table_short_name.valueAsText,
-                        in_val_raster, field_id=True)
+                        first_in_raster, field_id=True)
                     prev_table_short_val.append(table_short_name.valueAsText)
                 else:
                     prev_table_short_val.append(table_short_name.valueAsText)
                 # Validated output table name input
                 if len(prev_table_name_val) > 0:
                     super(LandStatistics, self).uniqueValueValidator(
-                        prev_table_name_val, out_table_name, in_val_raster,
+                        prev_table_name_val, out_table_name, first_in_raster,
                         field_id=True)
                     prev_table_name_val.append(out_table_name)
                 else:
@@ -1420,37 +1446,75 @@ class LandStatistics(TargetingTool):
             in_raster = parameters[0].valueAsText.replace("\\", "/")
             # Get output folder path
             # out_table = parameters[39].valueAsText.replace("\\", "/")
-
-            ras_temp_path = self.scratch_path + "/Temp/"
+            self.spatial_ref = self.get_srid_from_file(in_raster)
+            ras_temp_path = self.scratch_path + '/'#'/Temp/'
 
             if not os.path.exists(ras_temp_path):
                 os.makedirs(ras_temp_path)  # Create temporary directory
 
             # Feature class rasterization and overlay
-            if parameters[7].value:
-                in_fc = super(LandStatistics, self).getInputFc(parameters[7])[
-                    "in_fc"]  # Get feature file path
-                in_fc_file = \
-                    super(LandStatistics, self).getInputFc(parameters[7])[
-                        "in_fc_file"]  # Get feature file name
-                in_fc_field = parameters[8].valueAsText
-                arcpy.AddMessage(
-                    "Converting polygon {0} to raster \n".format(in_fc_file)
-                )
-                # Convert polygon to raster
-                arcpy.PolygonToRaster_conversion(
-                    in_fc, in_fc_field, ras_temp_path + "ras_poly",
-                    "CELL_CENTER", "NONE", in_raster
-                )
+            if parameters[7].value is not None:
+                #TODO add this check on desktop too.
+                if arcpy.Exists(parameters[7].value):
+                    in_fc = super(LandStatistics, self).getInputFc(parameters[7])[
+                        "in_fc"]  # Get feature file path
+                    in_fc_file = \
+                        super(LandStatistics, self).getInputFc(parameters[7])[
+                            "in_fc_file"]  # Get feature file name
 
-                arcpy.gp.Times_sa(ras_temp_path + "ras_poly", "1000",
-                                  ras_temp_path + "ras_multi")  # Process: Times
-                # Reclassify input raster
-                in_raster = self.reclassifyRaster(parameters, ras_temp_path)
-                self.zonalStatisticsInit(in_raster, ras_temp_path, parameters,
-                                         ras_add=True)
-                self.configZonalStatisticsTable(parameters, ras_temp_path,
-                                                self.scratch_path, in_vector=True)
+                    fc_describe = arcpy.Describe(in_fc)
+                    fc_sr = fc_describe.spatialReference
+                    #TODO check if feature layer works in the desktop version
+
+                    if fc_sr.Name != self.spatial_ref.Name:
+
+                        arcpy.AddMessage(
+                            "Reprojecting polygon {0} \n".format(in_fc_file)
+                        )
+                        fc_dir = os.path.dirname(in_fc)
+                        fc_name = os.path.basename(in_fc)
+
+                        if len(fc_name.split('.', 1)) > 1:
+                            proj_name = fc_name.split('.', 1)[0],
+                            proj_ext = fc_name.split('.', 1)[1]
+                            proj_fc_name = '{}_1.{}'.format(proj_name, proj_ext)
+                            proj_fc = '{}/{}'.format(fc_dir, proj_fc_name)
+
+                            arcpy.Copy_management(in_fc,
+                                                  ras_temp_path + fc_name)
+                            arcpy.Project_management(
+                                ras_temp_path + fc_name,
+                                ras_temp_path + proj_fc_name, self.spatial_ref
+                            )
+                            in_fc = ras_temp_path + proj_fc_name
+                        else:
+
+                            proj_fc_name = '{}_1'.format(fc_name)
+
+                            arcpy.Project_management(
+                                fc_name, proj_fc_name, self.spatial_ref
+                            )
+                            in_fc = proj_fc_name
+
+                    in_fc_field = parameters[8].valueAsText
+                    arcpy.AddMessage(
+                        "Converting polygon {0} to raster \n".format(in_fc_file)
+                    )
+
+                    # Convert polygon to raster
+                    arcpy.PolygonToRaster_conversion(
+                        in_fc, in_fc_field, ras_temp_path + "ras_poly",
+                        "CELL_CENTER", "NONE", in_raster
+                    )
+
+                    arcpy.gp.Times_sa(ras_temp_path + "ras_poly", "1000",
+                                      ras_temp_path + "ras_multi")  # Process: Times
+                    # Reclassify input raster
+                    in_raster = self.reclassifyRaster(parameters, ras_temp_path)
+                    self.zonalStatisticsInit(in_raster, ras_temp_path, parameters,
+                                             ras_add=True)
+                    self.configZonalStatisticsTable(parameters, ras_temp_path,
+                                                    self.scratch_path, in_vector=True)
             else:
                 in_raster = self.reclassifyRaster(parameters, ras_temp_path)
                 self.zonalStatisticsInit(in_raster, ras_temp_path, parameters,
@@ -1458,7 +1522,7 @@ class LandStatistics(TargetingTool):
                 self.configZonalStatisticsTable(parameters, ras_temp_path,
                                                 self.scratch_path, in_vector=False)
 
-            shutil.rmtree(ras_temp_path)  # delete folder
+            # shutil.rmtree(ras_temp_path)  # delete folder
             # arcpy.RefreshCatalog(self.scratch_path)  # Refresh folder
 
         except Exception as ex:
@@ -1639,6 +1703,7 @@ class LandStatistics(TargetingTool):
             to_val = parameters[5].valueAsText
             new_val = parameters[6].valueAsText
             arcpy.AddMessage("Reclassifying {0} \n".format(in_raster))
+
             arcpy.gp.ReclassByTable_sa(in_raster, in_table, from_val, to_val,
                                        new_val, ras_temp_path + "ras_reclass",
                                        "DATA")  # Process: Reclass by Table
@@ -1756,10 +1821,11 @@ class LandStatistics(TargetingTool):
                                                        "Overwrite")  # Build attribute table for raster
             for row_count, ras_val_file, stats_type, data_val, out_table_name, table_short_name in self.getStatisticsRasterValue(
                     in_val_raster, table_only=False):
-                # stats_type_edit = self.formatStatisticsType(stats_type)
+                stats_type_edit = self.formatStatisticsType(stats_type.value)
+
                 out_stat_table = ras_temp_path + out_table_name + ".dbf"
                 self.calculateZonalStatistics(in_raster, ras_val_file,
-                                              stats_type.value, data_val,
+                                              stats_type_edit, data_val,
                                               out_stat_table)
             super(LandStatistics, self).deleteFile(
                 ras_temp_path, "ras_plus", "ras_copy"
@@ -1776,10 +1842,11 @@ class LandStatistics(TargetingTool):
             for row_count, ras_val_file, stats_type, data_val, out_table_name, \
                 table_short_name in self.getStatisticsRasterValue(
                     in_val_raster, table_only=False):
+                stats_type_edit = self.formatStatisticsType(stats_type.value)
 
                 out_stat_table = ras_temp_path + out_table_name + ".dbf"
                 self.calculateZonalStatistics(in_raster, ras_val_file,
-                                              stats_type.value, data_val,
+                                              stats_type_edit, data_val,
                                               out_stat_table)
             super(LandStatistics, self).deleteFile(ras_temp_path,
                                                    "ras_reclass", "ras_copy")
@@ -1875,7 +1942,7 @@ class LandStatistics(TargetingTool):
             Args:
                 stats_type: Value table statistics type input
         """
-        stats_type = stats_type.valueAsText.upper()
+        # stats_type = stats_type.valueAsText.upper()
         if stats_type == "MAX":
             stats_type_edit = "MAXIMUM"
         elif stats_type == "MIN":
@@ -1931,22 +1998,39 @@ class LandStatistics(TargetingTool):
         single_move_stat_table = ""
 
         #TODO change double loop on desktop version and replace the whole method
-        #TODO discuss with Nicolas
+
         # if len(in_val_raster) > 1:
         for row_count, out_table_name, table_short_name in self.getStatisticsRasterValue(
                 in_val_raster, table_only=True):
             if row_count == 0:
                 first_stat_table = ras_temp_path + out_table_name + "_view" + ".dbf"
-                # single_out_stat_table = ras_temp_path + out_table_name + ".dbf"
+                single_out_stat_table = ras_temp_path + out_table_name + ".dbf"
                 # single_move_stat_table = out_table + "/" + out_table_name + ".dbf"
             # if len(in_val_raster) > 1:
             #     if row_count == 0:
             #         first_stat_table = ras_temp_path + out_table_name + "_view" + ".dbf"
             table_short_name = table_short_name.upper()
-            self.updateZonalStatisticsTable(out_table, ras_temp_path,
-                                            row_count, out_table_name,
-                                            first_stat_table,
-                                            table_short_name)
+            if len(in_val_raster) > 1:
+                # try:
+                self.updateZonalStatisticsTable(out_table, ras_temp_path,
+                                                    row_count, out_table_name,
+                                                    first_stat_table,
+                                                    table_short_name)
+                # except Exception as ex:
+                #     arcpy.AddMessage(ex)
+        if len(in_val_raster) > 1:
+            self.addFieldValueZonalStatisticsTable(
+                parameters, out_table, ras_temp_path, first_stat_table,
+                in_val_raster
+            )
+        else:
+            # if in_vector:
+            # Even if there is nothing to combine, output should be the same
+            self.addFieldValueZonalStatisticsTable(
+                parameters, out_table, ras_temp_path, single_out_stat_table,
+                in_val_raster
+            )
+
             # else:
             #
 
@@ -1958,10 +2042,7 @@ class LandStatistics(TargetingTool):
         #     )
         # else:
         # Add new fields and values
-        self.addFieldValueZonalStatisticsTable(
-            parameters, out_table, ras_temp_path, first_stat_table,
-            in_val_raster
-        )
+
         # arcpy.AddMessage(
         #     "Moving file {0} to {1} \n".format(single_out_stat_table,
         #                                        single_move_stat_table))
@@ -2047,7 +2128,8 @@ class LandStatistics(TargetingTool):
             Return: None
         """
         # Move individual tables to output folder
-        shutil.move(current_path, new_path)
+        if os.path.isfile(current_path):
+            shutil.move(current_path, new_path)
 
     def addFieldValueZonalStatisticsTable(
             self, parameters, out_table, ras_temp_path, first_stat_table, value_table):
@@ -2060,34 +2142,40 @@ class LandStatistics(TargetingTool):
         """
 
         # Add new fields and data
-        if len(value_table) > 1:
-            combined_stat_table = out_table + "/All_Zonal_Stat.dbf"
-        else:
-            in_dbf_file = ntpath.basename(first_stat_table)
-            combined_stat_table = out_table + "/" + in_dbf_file
+        # if len(value_table) > 1:
+        combined_stat_table = out_table + "/All_Zonal_Stat.dbf"
+        # else:
+        #     in_dbf_file = ntpath.basename(first_stat_table)
+        #     combined_stat_table = out_table + "/" + in_dbf_file
 
-        if parameters[7].value and arcpy.Exists(first_stat_table):
+        if parameters[7].value is not None and arcpy.Exists(first_stat_table):
             in_fc_field = parameters[8].valueAsText
             ras_poly = ras_temp_path + "ras_poly"
+            # try:
             if not arcpy.ListFields(first_stat_table, in_fc_field):
                 arcpy.AddMessage(
                     "Adding fields to {0} \n".format(first_stat_table))
                 self.addTableField(first_stat_table,
                                    in_fc_field)  # Adds field to a .dbf table
+            # except Exception as ex:
+            #     arcpy.AddMessage(ex)
             # Process: Calculate Field
             arcpy.AddMessage(
                 "Adding suitability rank values to new fields in {0} \n".format(
                     first_stat_table))
-            arcpy.CalculateField_management(first_stat_table, "POLY_VAL",
-                                            "([VALUE] - Right([VALUE] , 3)) / 1000",
-                                            "VB", "")
+            # TODO please check with Nicholas the use of this.
+            # arcpy.CalculateField_management(first_stat_table, "POLY_VAL",
+            #                                 "(!VALUE! - str((!VALUE![3:])) / 1000",
+            #                                 "PYTHON", "")
+
             arcpy.CalculateField_management(first_stat_table, "LAND_RANK",
-                                            "Right([VALUE] , 3)", "VB", "")
+                                            "str(!VALUE!)[3:]", "PYTHON", "")
             # Add values to table
             arcpy.AddMessage("Adding ID values to new fields in {0} \n".format(
                 first_stat_table))
             self.addValuesZonalStatisticsTable(in_fc_field, ras_poly,
                                                first_stat_table)
+
             arcpy.AddMessage(
                 "Moving file {0} to {1} \n".format(first_stat_table,
                                                    combined_stat_table))
@@ -2134,9 +2222,8 @@ class LandStatistics(TargetingTool):
                             for row3 in cursor3:
                                 row3[0] = update_val
                                 cursor3.updateRow(row3)
-
-        arcpy.DeleteField_management(out_stat_table,
-                                     "POLY_VAL")  # Process: Delete Field
+        # Process: Delete Field
+        arcpy.DeleteField_management(out_stat_table, "POLY_VAL")
         arcpy.management.Delete(ras_poly)  # Delete polygon
 
 
@@ -2146,7 +2233,7 @@ class LandSimilarity(TargetingTool):
         self.label = "Land Similarity"
         self.description = ""
         self.spatial_ref = None
-        self.canRunInBackground = True
+        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""
@@ -2343,7 +2430,6 @@ class LandSimilarity(TargetingTool):
                 parameters, ras_temp_path, out_mnobis_ras, out_mess_ras)
 
             # shutil.rmtree(ras_temp_path)  # Delete directory
-            # arcpy.AddMessage("Print {} {}".format(out_mnobis_ras_path, out_mess_ras_path) )
             # TODO apply this for desktop version
             if os.path.isfile(out_mnobis_ras_path):
 
@@ -2417,24 +2503,6 @@ class LandSimilarity(TargetingTool):
         arcpy.RefreshCatalog(
             ntpath.dirname(out_mnobis_ras_path)
         )
-
-    def copyDataset(self, ras_temp_path, source_file, new_file):
-        """ Copy dataset from one source to another
-            Args:
-                ras_temp_path: Temporary folder
-                source_file: Source file
-                new_file: New file
-            Returns:
-                new_file: New file path
-        """
-        if new_file is not None:
-            new_file = ntpath.basename(new_file)
-        else:
-            new_file = ntpath.basename(source_file)
-        # Copy point layer to a temporary directory
-        arcpy.Copy_management(source_file, ras_temp_path + new_file)
-        new_file = ras_temp_path + new_file
-        return new_file
 
     def getRExecutable(self, root_dir):
         """ Get R executable file path
@@ -2714,7 +2782,6 @@ class LandSimilarity(TargetingTool):
                     mess_ascii_path, out_mess_ras_path
                 )
             )
-            arcpy.AddMessage('Print {} - {}'.format(mess_ascii_path, out_mess_ras_path) )
             # Process ASCII to raster
             arcpy.ASCIIToRaster_conversion(
                 mess_ascii_path, out_mess_ras_path, "INTEGER"

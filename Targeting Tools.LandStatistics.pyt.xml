@@ -5,8 +5,8 @@
 		<CreaTime>14372500</CreaTime>
 		<ArcGISFormat>1.0</ArcGISFormat>
 		<SyncOnce>TRUE</SyncOnce>
-		<ModDate>20180208</ModDate>
-		<ModTime>215505</ModTime>
+		<ModDate>20180211</ModDate>
+		<ModTime>234628</ModTime>
 		<scaleRange>
 			<minScale>150000000</minScale>
 			<maxScale>5000</maxScale>
@@ -191,7 +191,7 @@
                    Raster Layer — Raster dataset on which to calculate statistics from.
                 </pythonReference>
 			</param>
-			<param name="stat_type1" displayname="Statistics Type 1" type="Required" direction="Input" datatype="String" expression="ALL | MEAN | MAJORITY | MAX | MAXIMUM | MEDIAN | MINIMUM | MIN | MINORITY | RANGE | SD | SN | SR | STDEV | STANDARD DEVIATION | STD | SUM | VARIETY">
+			<param name="stat_type1" displayname="Statistics Type 1" type="Required" direction="Input" datatype="String" expression="ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY">
 				<dialogReference>
                     Statistics
                     Type — Statistics type to be calculated. The default value
@@ -301,7 +301,7 @@
                    Raster Layer — Raster dataset on which to calculate statistics from.
                 </pythonReference>
 			</param>
-			<param name="stat_type2" displayname="Statistics Type 2" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAX | MAXIMUM | MEDIAN | MINIMUM | MIN | MINORITY | RANGE | SD | SN | SR | STDEV | STANDARD DEVIATION | STD | SUM | VARIETY}">
+			<param name="stat_type2" displayname="Statistics Type 2" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
 				<dialogReference>
                     Statistics
                     Type — Statistics type to be calculated. The default value
@@ -411,7 +411,7 @@
                    Raster Layer — Raster dataset on which to calculate statistics from.
                 </pythonReference>
 			</param>
-			<param name="stat_type3" displayname="Statistics Type 3" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAX | MAXIMUM | MEDIAN | MINIMUM | MIN | MINORITY | RANGE | SD | SN | SR | STDEV | STANDARD DEVIATION | STD | SUM | VARIETY}">
+			<param name="stat_type3" displayname="Statistics Type 3" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
 				<dialogReference>
                     Statistics
                     Type — Statistics type to be calculated. The default value
@@ -521,7 +521,7 @@
                    Raster Layer — Raster dataset on which to calculate statistics from.
                 </pythonReference>
 			</param>
-			<param name="stat_type4" displayname="Statistics Type 4" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAX | MAXIMUM | MEDIAN | MINIMUM | MIN | MINORITY | RANGE | SD | SN | SR | STDEV | STANDARD DEVIATION | STD | SUM | VARIETY}">
+			<param name="stat_type4" displayname="Statistics Type 4" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
 				<dialogReference>
                     Statistics
                     Type — Statistics type to be calculated. The default value
@@ -631,7 +631,7 @@
                    Raster Layer — Raster dataset on which to calculate statistics from.
                 </pythonReference>
 			</param>
-			<param name="stat_type5" displayname="Statistics Type 5" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAX | MAXIMUM | MEDIAN | MINIMUM | MIN | MINORITY | RANGE | SD | SN | SR | STDEV | STANDARD DEVIATION | STD | SUM | VARIETY}">
+			<param name="stat_type5" displayname="Statistics Type 5" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
 				<dialogReference>
                     Statistics
                     Type — Statistics type to be calculated. The default value
@@ -741,7 +741,7 @@
                    Raster Layer — Raster dataset on which to calculate statistics from.
                 </pythonReference>
 			</param>
-			<param name="stat_type6" displayname="Statistics Type 6" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAX | MAXIMUM | MEDIAN | MINIMUM | MIN | MINORITY | RANGE | SD | SN | SR | STDEV | STANDARD DEVIATION | STD | SUM | VARIETY}">
+			<param name="stat_type6" displayname="Statistics Type 6" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
 				<dialogReference>
                     Statistics
                     Type — Statistics type to be calculated. The default value
@@ -851,7 +851,7 @@
                    Raster Layer — Raster dataset on which to calculate statistics from.
                 </pythonReference>
 			</param>
-			<param name="stat_type7" displayname="Statistics Type 7" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAX | MAXIMUM | MEDIAN | MINIMUM | MIN | MINORITY | RANGE | SD | SN | SR | STDEV | STANDARD DEVIATION | STD | SUM | VARIETY}">
+			<param name="stat_type7" displayname="Statistics Type 7" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
 				<dialogReference>
                     Statistics
                     Type — Statistics type to be calculated. The default value
@@ -961,7 +961,7 @@
                    Raster Layer — Raster dataset on which to calculate statistics from.
                 </pythonReference>
 			</param>
-			<param name="stat_type8" displayname="Statistics Type 8" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAX | MAXIMUM | MEDIAN | MINIMUM | MIN | MINORITY | RANGE | SD | SN | SR | STDEV | STANDARD DEVIATION | STD | SUM | VARIETY}">
+			<param name="stat_type8" displayname="Statistics Type 8" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
 				<dialogReference>
                     Statistics
                     Type — Statistics type to be calculated. The default value
@@ -1071,7 +1071,7 @@
                    Raster Layer — Raster dataset on which to calculate statistics from.
                 </pythonReference>
 			</param>
-			<param name="stat_type9" displayname="Statistics Type 9" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAX | MAXIMUM | MEDIAN | MINIMUM | MIN | MINORITY | RANGE | SD | SN | SR | STDEV | STANDARD DEVIATION | STD | SUM | VARIETY}">
+			<param name="stat_type9" displayname="Statistics Type 9" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
 				<dialogReference>
                     Statistics
                     Type — Statistics type to be calculated. The default value
@@ -1181,7 +1181,7 @@
                    Raster Layer — Raster dataset on which to calculate statistics from.
                 </pythonReference>
 			</param>
-			<param name="stat_type10" displayname="Statistics Type 10" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAX | MAXIMUM | MEDIAN | MINIMUM | MIN | MINORITY | RANGE | SD | SN | SR | STDEV | STANDARD DEVIATION | STD | SUM | VARIETY}">
+			<param name="stat_type10" displayname="Statistics Type 10" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
 				<dialogReference>
                     Statistics
                     Type — Statistics type to be calculated. The default value
