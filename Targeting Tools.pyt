@@ -17,6 +17,7 @@
 """
 
 import os, sys, csv, re, time, arcpy, shutil, ntpath, subprocess, traceback
+import shlex
 from itertools import *
 
 arcpy.env.overwriteOutput = True
@@ -269,6 +270,10 @@ class TargetingTool(object):
                                                      "OVERWRITE")
             return arcpy.Raster(in_raster)
 
+    def get_srid_from_file(self, first_in_raster):
+        dsc = arcpy.Describe(first_in_raster)
+        spatial_ref = dsc.spatialReference
+        return spatial_ref
 
 class LandSuitability(TargetingTool):
     def __init__(self):
@@ -1814,6 +1819,7 @@ class LandSimilarity(TargetingTool):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Land Similarity"
         self.description = ""
+        self.spatial_ref = None
         self.canRunInBackground = False
         self.parameters = [
             parameter("Input raster", "in_raster", "Raster Layer",
@@ -1989,19 +1995,20 @@ class LandSimilarity(TargetingTool):
             shutil.rmtree(ras_temp_path)  # Delete directory
 
             # Get raster and load to the current mxd
-            out_ras = ""
-            if arcpy.Exists(out_mnobis_ras) and arcpy.Exists(out_mess_ras):
-                out_ras = [out_mnobis_ras, out_mess_ras]
-            else:
-                if arcpy.Exists(out_mnobis_ras):
-                    out_ras = out_mnobis_ras
-                elif arcpy.Exists(out_mess_ras):
-                    out_ras = out_mess_ras
-            super(LandSimilarity, self).loadOutput(
-                out_ras)  # Load output to current MXD
-            arcpy.RefreshCatalog(
-                ntpath.dirname(out_mnobis_ras))  # Refresh folder
-            return
+            # out_ras = ""
+            # if arcpy.Exists(out_mnobis_ras) and arcpy.Exists(out_mess_ras):
+                # out_ras = [out_mnobis_ras, out_mess_ras]
+            self.load_output_to_mxd(out_mess_ras, out_mnobis_ras)
+            # else:
+            #     if arcpy.Exists(out_mnobis_ras):
+            #         out_ras = out_mnobis_ras
+            #     elif arcpy.Exists(out_mess_ras):
+            #         out_ras = out_mess_ras
+            # super(LandSimilarity, self).loadOutput(
+            #     out_ras)  # Load output to current MXD
+            # arcpy.RefreshCatalog(
+            #     ntpath.dirname(out_mnobis_ras))  # Refresh folder
+            # return
         except Exception as ex:
             # tb = sys.exc_info()[2]
             # tbinfo = traceback.format_tb(tb)[0]
@@ -2010,6 +2017,53 @@ class LandSimilarity(TargetingTool):
             # arcpy.AddError(pymsg)
             # arcpy.AddError(msgs)
             arcpy.AddMessage('ERROR: {0} \n'.format(ex))
+
+    def load_output_to_mxd(self, out_mnobis_ras_path, out_mess_ras_path):
+        ##TODO use this method for the Desktop version
+        """
+        Get raster and load to the current mxd
+        :param out_mnobis_ras_path: Mahalanobis output path.
+        :type out_mnobis_ras_path: String
+        :param out_mess_ras_path: MESS output path.
+        :type out_mess_ras_path: String
+        :return:
+        :rtype:
+        """
+        out_ras = ""
+        if arcpy.Exists(out_mnobis_ras_path) and arcpy.Exists(
+                out_mess_ras_path):
+            # Define spatial reference system
+            arcpy.DefineProjection_management(
+                out_mnobis_ras_path, self.spatial_ref)
+            arcpy.DefineProjection_management(
+                out_mess_ras_path,
+                self.spatial_ref
+            )
+
+            out_ras = [out_mnobis_ras_path, out_mess_ras_path]
+        else:
+            if arcpy.Exists(out_mnobis_ras_path):
+                # Define spatial reference system
+                arcpy.DefineProjection_management(
+                    out_mnobis_ras_path, self.spatial_ref
+                )
+                out_ras = out_mnobis_ras_path
+
+            elif arcpy.Exists(out_mess_ras_path):
+                # Define spatial reference system
+                arcpy.DefineProjection_management(
+                    out_mess_ras_path,
+                    self.spatial_ref
+                )
+                out_ras = out_mess_ras_path
+        # Load output to current MXD
+        super(LandSimilarity, self).loadOutput(out_ras)
+        # Refresh folder
+        arcpy.RefreshCatalog(
+            ntpath.dirname(out_mnobis_ras_path)
+        )
+
+
 
     def copyDataset(self, ras_temp_path, source_file, new_file):
         """ Copy dataset from one source to another
@@ -2153,6 +2207,9 @@ class LandSimilarity(TargetingTool):
         arcpy.AddMessage(
             "Applying environment settings for {0}".format(in_raster))
         in_raster = arcpy.Raster(in_raster)
+
+        self.spatial_ref = self.get_srid_from_file(first_in_raster)
+
         return arcpy.sa.ApplyEnvironment(in_raster)
 
     def deleteTempFile(self, parameters, ras_temp_path):
@@ -2250,8 +2307,13 @@ class LandSimilarity(TargetingTool):
             Returns: None
         """
         r_cmd = '"' + r_exe_path + '" --vanilla --slave --file="' + ras_temp_path + 'out_script.r"'  # r command
+
         arcpy.AddMessage("Running similarity analysis \n")
-        subprocess.call(r_cmd, shell=False)  # Open shell and run R command
+
+        CREATE_NO_WINDOW = 0x08000000
+        process = subprocess.Popen(shlex.split(r_cmd), stdout=subprocess.PIPE,
+                                   creationflags=CREATE_NO_WINDOW)
+        process.wait()
 
     def asciiToRasterConversion(self, parameters, ras_temp_path):
         """ ASCII to raster conversion
