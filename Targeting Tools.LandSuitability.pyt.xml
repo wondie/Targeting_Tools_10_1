@@ -5,8 +5,8 @@
 		<CreaTime>14372400</CreaTime>
 		<ArcGISFormat>1.0</ArcGISFormat>
 		<SyncOnce>TRUE</SyncOnce>
-		<ModDate>20170707</ModDate>
-		<ModTime>160318</ModTime>
+		<ModDate>20180319</ModDate>
+		<ModTime>210745</ModTime>
 		<scaleRange>
 			<minScale>150000000</minScale>
 			<maxScale>5000</maxScale>
@@ -45,95 +45,7 @@
 	</distInfo>
 	<tool name="LandSuitability" displayname="Land Suitability" toolboxalias="Target Tools" xmlns="">
 		<parameters>
-			<param name="in_raster" displayname="Input raster" type="Required" direction="Input" datatype="Value Table" expression="Raster {Min Value} {Optimal From} {Optimal To} {Max Value} {Combine-Yes/No};Raster {Min Value} {Optimal From} {Optimal To} {Max Value} {Combine-Yes/No}...">
-				<dialogReference>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;A
-                    table with raster data that contains values that will be
-                    used to perform suitability analysis . The following field
-                    values are required:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Min
-                    Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Optimal
-                    To — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Max
-                    Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Combine-Yes/No
-                    — Denotes whether a raster input will be combined with
-                    another raster in the table during the analysis ideally
-                    because together they posses similar influence on the
-                    suitability of a location. The following options are
-                    allowed as entries:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN
-                    STYLE="font-style:italic;"&gt;No&lt;/SPAN&gt;&lt;SPAN&gt;—
-                    This is the default value meaning the current input raster
-                    will NOT be combined with others during analysis.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN
-                    STYLE="font-style:italic;"&gt;Yes&lt;/SPAN&gt;&lt;SPAN&gt;—
-                    Using this option, the current input raster will be
-                    combined with other inputs.&lt;/SPAN&gt;&lt;SPAN /&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P&gt;&lt;SPAN
-                    STYLE="font-weight:bold;"&gt;NOTE: &lt;/SPAN&gt;&lt;SPAN&gt;The
-                    decision to combine input raster datasets should take a
-                    top-down approach. For example, if the preceding
-                    Combine-Yes/No field value is &lt;/SPAN&gt;&lt;SPAN
-                    STYLE="font-style:italic;font-weight:bold;"&gt;No &lt;/SPAN&gt;&lt;SPAN&gt;and
-                    the succeeding is &lt;/SPAN&gt;&lt;SPAN
-                    STYLE="font-style:italic;font-weight:bold;"&gt;Yes&lt;/SPAN&gt;&lt;SPAN&gt;,
-                    this two inputs will be combined together. More than two
-                    input raster datasets can be combined together starting
-                    with a &lt;/SPAN&gt;&lt;SPAN
-                    STYLE="font-style:italic;font-weight:bold;"&gt;No &lt;/SPAN&gt;&lt;SPAN&gt;field
-                    value entry followed by a &lt;/SPAN&gt;&lt;SPAN
-                    STYLE="font-style:italic;font-weight:bold;"&gt;Yes&lt;/SPAN&gt;&lt;SPAN&gt;entry
-                    on the rest of the inputs. &lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN
-                    /&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN /&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN
-                    /&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
-                </dialogReference>
-				<pythonReference>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;A
-                    table with raster data that contains values that will be
-                    used to perform suitability analysis . The following field
-                    values are required:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Min
-                    Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Optimal
-                    To — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Max
-                    Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Combine-Yes/No
-                    — Denotes whether a raster input will be combined with
-                    another raster in the table during the analysis ideally
-                    because together they posses similar influence on the
-                    suitability of a location. The following options are
-                    allowed as entries:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN
-                    STYLE="font-style:italic;"&gt;No&lt;/SPAN&gt;&lt;SPAN&gt;—
-                    This is the default value meaning the current input raster
-                    will NOT be combined with others during analysis.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN
-                    STYLE="font-style:italic;"&gt;Yes&lt;/SPAN&gt;&lt;SPAN&gt;—
-                    Using this option, the current input raster will be
-                    combined with other inputs.&lt;/SPAN&gt;&lt;SPAN /&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P&gt;&lt;SPAN
-                    STYLE="font-weight:bold;"&gt;NOTE: &lt;/SPAN&gt;&lt;SPAN&gt;The
-                    decision to combine input raster datasets should take a
-                    top-down approach. For example, if the preceding
-                    Combine-Yes/No field value is &lt;/SPAN&gt;&lt;SPAN
-                    STYLE="font-style:italic;font-weight:bold;"&gt;No &lt;/SPAN&gt;&lt;SPAN&gt;and
-                    the succeeding is &lt;/SPAN&gt;&lt;SPAN
-                    STYLE="font-style:italic;font-weight:bold;"&gt;Yes&lt;/SPAN&gt;&lt;SPAN&gt;,
-                    this two inputs will be combined together. More than two
-                    input raster datasets can be combined together starting
-                    with a &lt;/SPAN&gt;&lt;SPAN
-                    STYLE="font-style:italic;font-weight:bold;"&gt;No &lt;/SPAN&gt;&lt;SPAN&gt;field
-                    value entry followed by a &lt;/SPAN&gt;&lt;SPAN
-                    STYLE="font-style:italic;font-weight:bold;"&gt;Yes&lt;/SPAN&gt;&lt;SPAN&gt;entry
-                    on the rest of the inputs. &lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
-                </pythonReference>
-			</param>
-			<param name="in_raster1" displayname="Raster Layer 1" type="Required" datatype="Raster Layer" expression="in_raster1">
+			<param name="in_raster1" displayname="Raster Layer 1" type="Required" datatype="Raster Layer" expression="in_raster1" direction="Input">
 				<dialogReference>
                     Raster data that whole optimal from and to values
                     are used to find a suitable area.
@@ -143,97 +55,7 @@
                     are used to find a suitable area.
                 </pythonReference>
 			</param>
-			<param name="in_raster2" displayname="Raster Layer 2" type="Optional" datatype="Raster Layer" expression="in_raster2">
-				<dialogReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </dialogReference>
-				<pythonReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </pythonReference>
-			</param>
-			<param name="in_raster3" displayname="Raster Layer 3" type="Optional" datatype="Raster Layer" expression="in_raster3">
-				<dialogReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </dialogReference>
-				<pythonReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </pythonReference>
-			</param>
-			<param name="in_raster4" displayname="Raster Layer 4" type="Optional" datatype="Raster Layer" expression="in_raster4">
-				<dialogReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </dialogReference>
-				<pythonReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </pythonReference>
-			</param>
-			<param name="in_raster5" displayname="Raster Layer 5" type="Optional" datatype="Raster Layer" expression="in_raster5">
-				<dialogReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </dialogReference>
-				<pythonReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </pythonReference>
-			</param>
-			<param name="in_raster6" displayname="Raster Layer 6" type="Optional" datatype="Raster Layer" expression="in_raster6">
-				<dialogReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </dialogReference>
-				<pythonReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </pythonReference>
-			</param>
-			<param name="in_raster7" displayname="Raster Layer 7" type="Optional" datatype="Raster Layer" expression="in_raster7">
-				<dialogReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </dialogReference>
-				<pythonReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </pythonReference>
-			</param>
-			<param name="in_raster8" displayname="Raster Layer 8" type="Optional" datatype="Raster Layer" expression="in_raster8">
-				<dialogReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </dialogReference>
-				<pythonReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </pythonReference>
-			</param>
-			<param name="in_raster9" displayname="Raster Layer 9" type="Optional" datatype="Raster Layer" expression="in_raster9">
-				<dialogReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </dialogReference>
-				<pythonReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </pythonReference>
-			</param>
-			<param name="in_raster10" displayname="Raster Layer 10" type="Optional" datatype="Raster Layer" expression="in_raster10">
-				<dialogReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </dialogReference>
-				<pythonReference>
-                    Raster data that whole optimal from and to values
-                    are used to find a suitable area.
-                </pythonReference>
-			</param>
-			<param name="min_val1" displayname="Minimum Value 1" type="Required" datatype="Double" expression="min_val1">
+			<param name="min_val1" displayname="Min Value 1" type="Required" datatype="Double" expression="min_val1" direction="Input">
 				<dialogReference>
                     Min Value — An editable field that initially has the input
                     raster minimum value. ONLY integer and float values are
@@ -245,235 +67,7 @@
                     allowed in this field.
                 </pythonReference>
 			</param>
-			<param name="min_val2" displayname="Minimum Value 2" type="Optional" datatype="Double" expression="min_val2">
-				<dialogReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="min_val3" displayname="Minimum Value 3" type="Optional" datatype="Double" expression="min_val3">
-				<dialogReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="min_val4" displayname="Minimum Value 4" type="Optional" datatype="Double" expression="min_val4">
-				<dialogReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="min_val5" displayname="Minimum Value 5" type="Optional" datatype="Double" expression="min_val5">
-				<dialogReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="min_val6" displayname="Minimum Value 6" type="Optional" datatype="Double" expression="min_val6">
-				<dialogReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="min_val7" displayname="Minimum Value 7" type="Optional" datatype="Double" expression="min_val7">
-				<dialogReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="min_val8" displayname="Minimum Value 8" type="Optional" datatype="Double" expression="min_val8">
-				<dialogReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="min_val9" displayname="Minimum Value 9" type="Optional" datatype="Double" expression="min_val9">
-				<dialogReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="min_val10" displayname="Minimum Value 10" type="Optional" datatype="Double" expression="min_val10">
-				<dialogReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Min Value — An editable field that initially has the input
-                    raster minimum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="max_val1" displayname="Maximum Value 1" type="Required" datatype="Double" expression="max_val1">
-				<dialogReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="max_val2" displayname="Maximum Value 2" type="Optional" datatype="Double" expression="max_val2">
-				<dialogReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="max_val3" displayname="Maximum Value 3" type="Optional" datatype="Double" expression="max_val3">
-				<dialogReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="max_val4" displayname="Maximum Value 4" type="Optional" datatype="Double" expression="max_val4">
-				<dialogReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="max_val5" displayname="Maximum Value 5" type="Optional" datatype="Double" expression="max_val5">
-				<dialogReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="max_val6" displayname="Maximum Value 6" type="Optional" datatype="Double" expression="max_val6">
-				<dialogReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="max_val7" displayname="Maximum Value 7" type="Optional" datatype="Double" expression="max_val7">
-				<dialogReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="max_val8" displayname="Maximum Value 8" type="Optional" datatype="Double" expression="max_val8">
-				<dialogReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="max_val9" displayname="Maximum Value 9" type="Optional" datatype="Double" expression="max_val9">
-				<dialogReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="max_val10" displayname="Maximum Value 10" type="Optional" datatype="Double" expression="max_val10">
-				<dialogReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </dialogReference>
-				<pythonReference>
-                    Max Value — An editable field that initially has the input
-                    raster maximum value. ONLY integer and float values are
-                    allowed in this field.
-                </pythonReference>
-			</param>
-			<param name="opti_from1" displayname="Optimal From 1" type="Required" datatype="Double" expression="opti_from1">
+			<param name="opti_from1" displayname="Optimal From 1" type="Required" datatype="Double" expression="opti_from1" direction="Input">
 				<dialogReference>
                     Optimal
                     From — This is an editable field that can ONLY accept float
@@ -487,133 +81,7 @@
                     than the Min Value and less than the Optimal To value.
                 </pythonReference>
 			</param>
-			<param name="opti_from2" displayname="Optimal From 2" type="Optional" datatype="Double" expression="opti_from2">
-				<dialogReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </pythonReference>
-			</param>
-			<param name="opti_from3" displayname="Optimal From 3" type="Optional" datatype="Double" expression="opti_from3">
-				<dialogReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </pythonReference>
-			</param>
-			<param name="opti_from4" displayname="Optimal From 4" type="Optional" datatype="Double" expression="opti_from4">
-				<dialogReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </pythonReference>
-			</param>
-			<param name="opti_from5" displayname="Optimal From 5" type="Optional" datatype="Double" expression="opti_from5">
-				<dialogReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </pythonReference>
-			</param>
-			<param name="opti_from6" displayname="Optimal From 6" type="Optional" datatype="Double" expression="opti_from6">
-				<dialogReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </pythonReference>
-			</param>
-			<param name="opti_from7" displayname="Optimal From 7" type="Optional" datatype="Double" expression="opti_from7">
-				<dialogReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </pythonReference>
-			</param>
-			<param name="opti_from8" displayname="Optimal From 8" type="Optional" datatype="Double" expression="opti_from8">
-				<dialogReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </pythonReference>
-			</param>
-			<param name="opti_from9" displayname="Optimal From 9" type="Optional" datatype="Double" expression="opti_from9">
-				<dialogReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </pythonReference>
-			</param>
-			<param name="opti_from10" displayname="Optimal From 10" type="Optional" datatype="Double" expression="opti_from10">
-				<dialogReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal
-                    From — This is an editable field that can ONLY accept float
-                    and integer values. The value entered should be greater
-                    than the Min Value and less than the Optimal To value.
-                </pythonReference>
-			</param>
-			<param name="opti_to1" displayname="Optimal To 1" type="Required" datatype="Double" expression="opti_to1">
+			<param name="opti_to1" displayname="Optimal To 1" type="Required" datatype="Double" expression="opti_to1" direction="Input">
 				<dialogReference>
                     Optimal To — This is an editable field that can ONLY accept
                     float
@@ -627,171 +95,19 @@
                     than the Optimal From value and less than Max Value.
                 </pythonReference>
 			</param>
-			<param name="opti_to2" displayname="Optimal To 2" type="Optional" datatype="Double" expression="opti_to2">
+			<param name="max_val1" displayname="Max Value 1" type="Required" datatype="Double" expression="max_val1" direction="Input">
 				<dialogReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
                 </dialogReference>
 				<pythonReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
                 </pythonReference>
 			</param>
-			<param name="opti_to3" displayname="Optimal To 3" type="Optional" datatype="Double" expression="opti_to3">
-				<dialogReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </pythonReference>
-			</param>
-			<param name="opti_to4" displayname="Optimal To 4" type="Optional" datatype="Double" expression="opti_to4">
-				<dialogReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </pythonReference>
-			</param>
-			<param name="opti_to5" displayname="Optimal To 5" type="Optional" datatype="Double" expression="opti_to5">
-				<dialogReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </pythonReference>
-			</param>
-			<param name="opti_to6" displayname="Optimal To 6" type="Optional" datatype="Double" expression="opti_to6">
-				<dialogReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </pythonReference>
-			</param>
-			<param name="opti_to7" displayname="Optimal To 7" type="Optional" datatype="Double" expression="opti_to7">
-				<dialogReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </pythonReference>
-			</param>
-			<param name="opti_to8" displayname="Optimal To 8" type="Optional" datatype="Double" expression="opti_to8">
-				<dialogReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </pythonReference>
-			</param>
-			<param name="opti_to9" displayname="Optimal To 9" type="Optional" datatype="Double" expression="opti_to9">
-				<dialogReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </pythonReference>
-			</param>
-			<param name="opti_to10" displayname="Optimal To 10" type="Optional" datatype="Double" expression="opti_to10">
-				<dialogReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </dialogReference>
-				<pythonReference>
-                    Optimal To — This is an editable field that can ONLY accept
-                    float
-                    and integer values. The value entered should be greater
-                    than the Optimal From value and less than Max Value.
-                </pythonReference>
-			</param>
-
-
-            
-            
-            Combine-Yes/No
-                    — Denotes whether a raster input will be combined with
-                    another raster in the table during the analysis ideally
-                    because together they posses similar influence on the
-                    suitability of a location. The following options are
-                    allowed as entries:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN
-                    STYLE="font-style:italic;"&gt;No&lt;/SPAN&gt;&lt;SPAN&gt;—
-                    This is the default value meaning the current input raster
-                    will NOT be combined with others during analysis.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN
-                    STYLE="font-style:italic;"&gt;Yes&lt;/SPAN&gt;&lt;SPAN&gt;—
-                    Using this option, the current input raster will be
-                    combined with other inputs.&lt;/SPAN&gt;&lt;SPAN /&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;P&gt;&lt;SPAN
-                    STYLE="font-weight:bold;"&gt;NOTE: &lt;/SPAN&gt;&lt;SPAN&gt;The
-                    decision to combine input raster datasets should take a
-                    top-down approach. For example, if the preceding
-                    Combine-Yes/No field value is &lt;/SPAN&gt;&lt;SPAN
-                    STYLE="font-style:italic;font-weight:bold;"&gt;No &lt;/SPAN&gt;&lt;SPAN&gt;and
-                    the succeeding is &lt;/SPAN&gt;&lt;SPAN
-                    STYLE="font-style:italic;font-weight:bold;"&gt;Yes&lt;/SPAN&gt;&lt;SPAN&gt;,
-                    this two inputs will be combined together. More than two
-                    input raster datasets can be combined together starting
-                    with a &lt;/SPAN&gt;&lt;SPAN
-                    STYLE="font-style:italic;font-weight:bold;"&gt;No &lt;/SPAN&gt;&lt;SPAN&gt;field
-                    value entry followed by a &lt;/SPAN&gt;&lt;SPAN
-                    STYLE="font-style:italic;font-weight:bold;"&gt;Yes&lt;/SPAN&gt;&lt;SPAN&gt;entry
-                    on the rest of the inputs. &lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN
-                    /&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN /&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN
-                    /&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
-            
-            
-            
-            
-            
-            
-            <param name="combine1" displayname="Combine 1" type="Required" datatype="GPString" expression="combine1">
+			<param name="combine1" displayname="Combine 1" type="Required" datatype="String" expression="Yes | No" direction="Input">
 				<dialogReference>
                           
             Combine-Yes/No
@@ -855,7 +171,69 @@
                     /&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </pythonReference>
 			</param>
-			<param name="combine2" displayname="Combine 2" type="Optional" datatype="GPString" expression="combine2">
+			<param name="in_raster2" displayname="Raster Layer 2" type="Optional" datatype="Raster Layer" expression="{in_raster2}" direction="Input">
+				<dialogReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </dialogReference>
+				<pythonReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </pythonReference>
+			</param>
+			<param name="min_val2" displayname="Min Value 2" type="Optional" datatype="Double" expression="{min_val2}" direction="Input">
+				<dialogReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="opti_from2" displayname="Optimal From 2" type="Optional" datatype="Double" expression="{opti_from2}" direction="Input">
+				<dialogReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </pythonReference>
+			</param>
+			<param name="opti_to2" displayname="Optimal To 2" type="Optional" datatype="Double" expression="{opti_to2}" direction="Input">
+				<dialogReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </pythonReference>
+			</param>
+			<param name="max_val2" displayname="Max Value 2" type="Optional" datatype="Double" expression="{max_val2}" direction="Input">
+				<dialogReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="combine2" displayname="Combine 2" type="Optional" datatype="String" expression="{Yes | No}" direction="Input">
 				<dialogReference>
                           
             Combine-Yes/No
@@ -919,7 +297,69 @@
                     /&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </pythonReference>
 			</param>
-			<param name="combine3" displayname="Combine 3" type="Optional" datatype="GPString" expression="combine3">
+			<param name="in_raster3" displayname="Raster Layer 3" type="Optional" datatype="Raster Layer" expression="{in_raster3}" direction="Input">
+				<dialogReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </dialogReference>
+				<pythonReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </pythonReference>
+			</param>
+			<param name="min_val3" displayname="Min Value 3" type="Optional" datatype="Double" expression="{min_val3}" direction="Input">
+				<dialogReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="opti_from3" displayname="Optimal From 3" type="Optional" datatype="Double" expression="{opti_from3}" direction="Input">
+				<dialogReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </pythonReference>
+			</param>
+			<param name="opti_to3" displayname="Optimal To 3" type="Optional" datatype="Double" expression="{opti_to3}" direction="Input">
+				<dialogReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </pythonReference>
+			</param>
+			<param name="max_val3" displayname="Max Value 3" type="Optional" datatype="Double" expression="{max_val3}" direction="Input">
+				<dialogReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="combine3" displayname="Combine 3" type="Optional" datatype="String" expression="{Yes | No}" direction="Input">
 				<dialogReference>
                           
             Combine-Yes/No
@@ -983,7 +423,69 @@
                     /&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </pythonReference>
 			</param>
-			<param name="combine4" displayname="Combine 4" type="Optional" datatype="GPString" expression="combine4">
+			<param name="in_raster4" displayname="Raster Layer 4" type="Optional" datatype="Raster Layer" expression="{in_raster4}" direction="Input">
+				<dialogReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </dialogReference>
+				<pythonReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </pythonReference>
+			</param>
+			<param name="min_val4" displayname="Min Value 4" type="Optional" datatype="Double" expression="{min_val4}" direction="Input">
+				<dialogReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="opti_from4" displayname="Optimal From 4" type="Optional" datatype="Double" expression="{opti_from4}" direction="Input">
+				<dialogReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </pythonReference>
+			</param>
+			<param name="opti_to4" displayname="Optimal To 4" type="Optional" datatype="Double" expression="{opti_to4}" direction="Input">
+				<dialogReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </pythonReference>
+			</param>
+			<param name="max_val4" displayname="Max Value 4" type="Optional" datatype="Double" expression="{max_val4}" direction="Input">
+				<dialogReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="combine4" displayname="Combine 4" type="Optional" datatype="String" expression="{Yes | No}" direction="Input">
 				<dialogReference>
                           
             Combine-Yes/No
@@ -1047,7 +549,69 @@
                     /&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </pythonReference>
 			</param>
-			<param name="combine5" displayname="Combine 5" type="Optional" datatype="GPString" expression="combine5">
+			<param name="in_raster5" displayname="Raster Layer 5" type="Optional" datatype="Raster Layer" expression="{in_raster5}" direction="Input">
+				<dialogReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </dialogReference>
+				<pythonReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </pythonReference>
+			</param>
+			<param name="min_val5" displayname="Min Value 5" type="Optional" datatype="Double" expression="{min_val5}" direction="Input">
+				<dialogReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="opti_from5" displayname="Optimal From 5" type="Optional" datatype="Double" expression="{opti_from5}" direction="Input">
+				<dialogReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </pythonReference>
+			</param>
+			<param name="opti_to5" displayname="Optimal To 5" type="Optional" datatype="Double" expression="{opti_to5}" direction="Input">
+				<dialogReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </pythonReference>
+			</param>
+			<param name="max_val5" displayname="Max Value 5" type="Optional" datatype="Double" expression="{max_val5}" direction="Input">
+				<dialogReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="combine5" displayname="Combine 5" type="Optional" datatype="String" expression="{Yes | No}" direction="Input">
 				<dialogReference>
                           
             Combine-Yes/No
@@ -1111,7 +675,69 @@
                     /&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </pythonReference>
 			</param>
-			<param name="combine6" displayname="Combine 6" type="Optional" datatype="GPString" expression="combine6">
+			<param name="in_raster6" displayname="Raster Layer 6" type="Optional" datatype="Raster Layer" expression="{in_raster6}" direction="Input">
+				<dialogReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </dialogReference>
+				<pythonReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </pythonReference>
+			</param>
+			<param name="min_val6" displayname="Min Value 6" type="Optional" datatype="Double" expression="{min_val6}" direction="Input">
+				<dialogReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="opti_from6" displayname="Optimal From 6" type="Optional" datatype="Double" expression="{opti_from6}" direction="Input">
+				<dialogReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </pythonReference>
+			</param>
+			<param name="opti_to6" displayname="Optimal To 6" type="Optional" datatype="Double" expression="{opti_to6}" direction="Input">
+				<dialogReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </pythonReference>
+			</param>
+			<param name="max_val6" displayname="Max Value 6" type="Optional" datatype="Double" expression="{max_val6}" direction="Input">
+				<dialogReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="combine6" displayname="Combine 6" type="Optional" datatype="String" expression="{Yes | No}" direction="Input">
 				<dialogReference>
                           
             Combine-Yes/No
@@ -1175,7 +801,69 @@
                     /&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </pythonReference>
 			</param>
-			<param name="combine7" displayname="Combine 7" type="Optional" datatype="GPString" expression="combine7">
+			<param name="in_raster7" displayname="Raster Layer 7" type="Optional" datatype="Raster Layer" expression="{in_raster7}" direction="Input">
+				<dialogReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </dialogReference>
+				<pythonReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </pythonReference>
+			</param>
+			<param name="min_val7" displayname="Min Value 7" type="Optional" datatype="Double" expression="{min_val7}" direction="Input">
+				<dialogReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="opti_from7" displayname="Optimal From 7" type="Optional" datatype="Double" expression="{opti_from7}" direction="Input">
+				<dialogReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </pythonReference>
+			</param>
+			<param name="opti_to7" displayname="Optimal To 7" type="Optional" datatype="Double" expression="{opti_to7}" direction="Input">
+				<dialogReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </pythonReference>
+			</param>
+			<param name="max_val7" displayname="Max Value 7" type="Optional" datatype="Double" expression="{max_val7}" direction="Input">
+				<dialogReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="combine7" displayname="Combine 7" type="Optional" datatype="String" expression="{Yes | No}" direction="Input">
 				<dialogReference>
                           
             Combine-Yes/No
@@ -1239,7 +927,69 @@
                     /&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </pythonReference>
 			</param>
-			<param name="combine8" displayname="Combine 8" type="Optional" datatype="GPString" expression="combine8">
+			<param name="in_raster8" displayname="Raster Layer 8" type="Optional" datatype="Raster Layer" expression="{in_raster8}" direction="Input">
+				<dialogReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </dialogReference>
+				<pythonReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </pythonReference>
+			</param>
+			<param name="min_val8" displayname="Min Value 8" type="Optional" datatype="Double" expression="{min_val8}" direction="Input">
+				<dialogReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="opti_from8" displayname="Optimal From 8" type="Optional" datatype="Double" expression="{opti_from8}" direction="Input">
+				<dialogReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </pythonReference>
+			</param>
+			<param name="opti_to8" displayname="Optimal To 8" type="Optional" datatype="Double" expression="{opti_to8}" direction="Input">
+				<dialogReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </pythonReference>
+			</param>
+			<param name="max_val8" displayname="Max Value 8" type="Optional" datatype="Double" expression="{max_val8}" direction="Input">
+				<dialogReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="combine8" displayname="Combine 8" type="Optional" datatype="String" expression="{Yes | No}" direction="Input">
 				<dialogReference>
                           
             Combine-Yes/No
@@ -1303,7 +1053,69 @@
                     /&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </pythonReference>
 			</param>
-			<param name="combine9" displayname="Combine 9" type="Optional" datatype="GPString" expression="combine9">
+			<param name="in_raster9" displayname="Raster Layer 9" type="Optional" datatype="Raster Layer" expression="{in_raster9}" direction="Input">
+				<dialogReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </dialogReference>
+				<pythonReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </pythonReference>
+			</param>
+			<param name="min_val9" displayname="Min Value 9" type="Optional" datatype="Double" expression="{min_val9}" direction="Input">
+				<dialogReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="opti_from9" displayname="Optimal From 9" type="Optional" datatype="Double" expression="{opti_from9}" direction="Input">
+				<dialogReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </pythonReference>
+			</param>
+			<param name="opti_to9" displayname="Optimal To 9" type="Optional" datatype="Double" expression="{opti_to9}" direction="Input">
+				<dialogReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </pythonReference>
+			</param>
+			<param name="max_val9" displayname="Max Value 9" type="Optional" datatype="Double" expression="{max_val9}" direction="Input">
+				<dialogReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="combine9" displayname="Combine 9" type="Optional" datatype="String" expression="{Yes | No}" direction="Input">
 				<dialogReference>
                           
             Combine-Yes/No
@@ -1367,7 +1179,68 @@
                     /&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </pythonReference>
 			</param>
-			<param name="combine10" displayname="Combine 10" type="Optional" datatype="GPString" expression="combine10">
+			<param name="in_raster10" displayname="Raster Layer 10" type="Optional" datatype="Raster Layer" expression="{in_raster10}" direction="Input">
+				<dialogReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </dialogReference>
+				<pythonReference>
+                    Raster data that whole optimal from and to values
+                    are used to find a suitable area.
+                </pythonReference>
+			</param>
+			<param name="min_val10" displayname="Min Value 10" type="Optional" datatype="Double" expression="{min_val10}" direction="Input">
+				<dialogReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Min Value — An editable field that initially has the input
+                    raster minimum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="opti_from10" displayname="Optimal From 10" type="Optional" datatype="Double" expression="{opti_from10}" direction="Input">
+				<dialogReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal
+                    From — This is an editable field that can ONLY accept float
+                    and integer values. The value entered should be greater
+                    than the Min Value and less than the Optimal To value.
+                </pythonReference>
+			</param>
+			<param name="opti_to10" displayname="Optimal To 10" type="Optional" datatype="Double" expression="{opti_to10}" direction="Input">
+				<dialogReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </dialogReference>
+				<pythonReference>
+                    Optimal To — This is an editable field that can ONLY accept
+                    float
+                    and integer values. The value entered should be greater
+                    than the Optimal From value and less than Max Value.
+                </pythonReference>
+			</param><param name="max_val10" displayname="Max Value 10" type="Optional" datatype="Double" expression="{max_val10}" direction="Input">
+				<dialogReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </dialogReference>
+				<pythonReference>
+                    Max Value — An editable field that initially has the input
+                    raster maximum value. ONLY integer and float values are
+                    allowed in this field.
+                </pythonReference>
+			</param>
+			<param name="combine10" displayname="Combine 10" type="Optional" datatype="String" expression="{Yes | No}" direction="Input">
 				<dialogReference>
                           
             Combine-Yes/No
@@ -1439,15 +1312,7 @@
                     feature class that defines processing extent.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </pythonReference>
 			</param>
-			<param name="out_raster" displayname="Output raster" type="Required" direction="Output" datatype="Raster Layer" expression="out_raster">
-				<dialogReference>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Output
-                    raster showing suitable areas&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
-                </dialogReference>
-				<pythonReference>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Output
-                    raster showing suitable areas&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;
-                </pythonReference>
-			</param>
-		</parameters>
+			<param name="emails" displayname="E-mails" type="Optional" direction="Input" datatype="String" expression="{emails}"><dialogReference>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;E-mails&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param></parameters>
 		<summary>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Given
             a set of raster data and user optimal values, the Land Suitability
             tool determines the most suitable place to carry out an activity.
@@ -1500,7 +1365,7 @@
             drastically as you move from higher cell values (starting from 1)
             to lower cell values (ending at 0).&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
         </usage>
-	</tool>
+		<arcToolboxHelpPath>c:\program files (x86)\arcgis\desktop10.5\Help\gp</arcToolboxHelpPath></tool>
 	<mdHrLv>
 		<ScopeCd value="005"/>
 	</mdHrLv>
