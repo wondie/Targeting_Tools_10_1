@@ -5,8 +5,8 @@
 		<CreaTime>14372500</CreaTime>
 		<ArcGISFormat>1.0</ArcGISFormat>
 		<SyncOnce>TRUE</SyncOnce>
-		<ModDate>20180213</ModDate>
-		<ModTime>181220</ModTime>
+		<ModDate>20180322</ModDate>
+		<ModTime>211932</ModTime>
 		<scaleRange>
 			<minScale>150000000</minScale>
 			<maxScale>5000</maxScale>
@@ -170,9 +170,14 @@
                 </pythonReference>
 			</param>
 			<param name="in_val_fcls" displayname="Input value feature class" type="Optional" direction="Input" datatype="Feature Layer" expression="{in_val_fcls}">
-                    Input
-                    value feature class is a polygon layer that contains field name.
-            <dialogReference>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Input value feature class is a polygon layer that contains field name.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param>
+                Input
+                value feature class is a polygon layer that contains field
+                name.
+                <dialogReference>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Input
+                    value feature class is a polygon layer that contains field
+                    name.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;
+                </dialogReference>
+			</param>
 			<param name="fval_field" displayname="Feature field name" type="Optional" direction="Input" datatype="String" expression="{fval_field}">
 				<dialogReference>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Input
                     value feature class field name. Only strings are allowed
@@ -185,10 +190,12 @@
 			</param>
 			<param name="in_raster1" displayname="Raster Layer 1" type="Required" direction="Input" datatype="Raster Layer" expression="in_raster1">
 				<dialogReference>
-                    Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </dialogReference>
 				<pythonReference>
-                   Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </pythonReference>
 			</param>
 			<param name="stat_type1" displayname="Statistics Type 1" type="Required" direction="Input" datatype="String" expression="ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY">
@@ -232,7 +239,7 @@
                     raster will be ignored in the statistic calculation.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;
                 </dialogReference>
 				<pythonReference>
-                   Statistics
+                    Statistics
                     Type — Statistics type to be calculated. The default value
                     is ALL.&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;ALL
                     — All of the statistics will be calculated. This is the
@@ -283,7 +290,7 @@
                     should NOT start with underscore or a number.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </dialogReference>
 				<pythonReference>
-                   Field
+                    Field
                     Identifier — String or alphanumeric values that will be
                     concatenated with output table field headers. When choosing
                     a Field Identifier value, please consider the following:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;It
@@ -295,10 +302,12 @@
 			</param>
 			<param name="in_raster2" displayname="Raster Layer 2" type="Optional" direction="Input" datatype="Raster Layer" expression="{in_raster2}">
 				<dialogReference>
-                    Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </dialogReference>
 				<pythonReference>
-                   Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </pythonReference>
 			</param>
 			<param name="stat_type2" displayname="Statistics Type 2" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
@@ -342,7 +351,7 @@
                     raster will be ignored in the statistic calculation.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;
                 </dialogReference>
 				<pythonReference>
-                   Statistics
+                    Statistics
                     Type — Statistics type to be calculated. The default value
                     is ALL.&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;ALL
                     — All of the statistics will be calculated. This is the
@@ -393,7 +402,7 @@
                     should NOT start with underscore or a number.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </dialogReference>
 				<pythonReference>
-                   Field
+                    Field
                     Identifier — String or alphanumeric values that will be
                     concatenated with output table field headers. When choosing
                     a Field Identifier value, please consider the following:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;It
@@ -405,10 +414,12 @@
 			</param>
 			<param name="in_raster3" displayname="Raster Layer 3" type="Optional" direction="Input" datatype="Raster Layer" expression="{in_raster3}">
 				<dialogReference>
-                    Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </dialogReference>
 				<pythonReference>
-                   Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </pythonReference>
 			</param>
 			<param name="stat_type3" displayname="Statistics Type 3" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
@@ -452,7 +463,7 @@
                     raster will be ignored in the statistic calculation.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;
                 </dialogReference>
 				<pythonReference>
-                   Statistics
+                    Statistics
                     Type — Statistics type to be calculated. The default value
                     is ALL.&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;ALL
                     — All of the statistics will be calculated. This is the
@@ -503,7 +514,7 @@
                     should NOT start with underscore or a number.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </dialogReference>
 				<pythonReference>
-                   Field
+                    Field
                     Identifier — String or alphanumeric values that will be
                     concatenated with output table field headers. When choosing
                     a Field Identifier value, please consider the following:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;It
@@ -515,10 +526,12 @@
 			</param>
 			<param name="in_raster4" displayname="Raster Layer 4" type="Optional" direction="Input" datatype="Raster Layer" expression="{in_raster4}">
 				<dialogReference>
-                    Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </dialogReference>
 				<pythonReference>
-                   Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </pythonReference>
 			</param>
 			<param name="stat_type4" displayname="Statistics Type 4" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
@@ -562,7 +575,7 @@
                     raster will be ignored in the statistic calculation.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;
                 </dialogReference>
 				<pythonReference>
-                   Statistics
+                    Statistics
                     Type — Statistics type to be calculated. The default value
                     is ALL.&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;ALL
                     — All of the statistics will be calculated. This is the
@@ -613,7 +626,7 @@
                     should NOT start with underscore or a number.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </dialogReference>
 				<pythonReference>
-                   Field
+                    Field
                     Identifier — String or alphanumeric values that will be
                     concatenated with output table field headers. When choosing
                     a Field Identifier value, please consider the following:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;It
@@ -625,10 +638,12 @@
 			</param>
 			<param name="in_raster5" displayname="Raster Layer 5" type="Optional" direction="Input" datatype="Raster Layer" expression="{in_raster5}">
 				<dialogReference>
-                    Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </dialogReference>
 				<pythonReference>
-                   Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </pythonReference>
 			</param>
 			<param name="stat_type5" displayname="Statistics Type 5" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
@@ -672,7 +687,7 @@
                     raster will be ignored in the statistic calculation.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;
                 </dialogReference>
 				<pythonReference>
-                   Statistics
+                    Statistics
                     Type — Statistics type to be calculated. The default value
                     is ALL.&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;ALL
                     — All of the statistics will be calculated. This is the
@@ -723,7 +738,7 @@
                     should NOT start with underscore or a number.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </dialogReference>
 				<pythonReference>
-                   Field
+                    Field
                     Identifier — String or alphanumeric values that will be
                     concatenated with output table field headers. When choosing
                     a Field Identifier value, please consider the following:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;It
@@ -735,10 +750,12 @@
 			</param>
 			<param name="in_raster6" displayname="Raster Layer 6" type="Optional" direction="Input" datatype="Raster Layer" expression="{in_raster6}">
 				<dialogReference>
-                    Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </dialogReference>
 				<pythonReference>
-                   Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </pythonReference>
 			</param>
 			<param name="stat_type6" displayname="Statistics Type 6" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
@@ -782,7 +799,7 @@
                     raster will be ignored in the statistic calculation.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;
                 </dialogReference>
 				<pythonReference>
-                   Statistics
+                    Statistics
                     Type — Statistics type to be calculated. The default value
                     is ALL.&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;ALL
                     — All of the statistics will be calculated. This is the
@@ -833,7 +850,7 @@
                     should NOT start with underscore or a number.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </dialogReference>
 				<pythonReference>
-                   Field
+                    Field
                     Identifier — String or alphanumeric values that will be
                     concatenated with output table field headers. When choosing
                     a Field Identifier value, please consider the following:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;It
@@ -845,10 +862,12 @@
 			</param>
 			<param name="in_raster7" displayname="Raster Layer 7" type="Optional" direction="Input" datatype="Raster Layer" expression="{in_raster7}">
 				<dialogReference>
-                    Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </dialogReference>
 				<pythonReference>
-                   Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </pythonReference>
 			</param>
 			<param name="stat_type7" displayname="Statistics Type 7" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
@@ -892,7 +911,7 @@
                     raster will be ignored in the statistic calculation.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;
                 </dialogReference>
 				<pythonReference>
-                   Statistics
+                    Statistics
                     Type — Statistics type to be calculated. The default value
                     is ALL.&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;ALL
                     — All of the statistics will be calculated. This is the
@@ -943,7 +962,7 @@
                     should NOT start with underscore or a number.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </dialogReference>
 				<pythonReference>
-                   Field
+                    Field
                     Identifier — String or alphanumeric values that will be
                     concatenated with output table field headers. When choosing
                     a Field Identifier value, please consider the following:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;It
@@ -955,10 +974,12 @@
 			</param>
 			<param name="in_raster8" displayname="Raster Layer 8" type="Optional" direction="Input" datatype="Raster Layer" expression="{in_raster8}">
 				<dialogReference>
-                    Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </dialogReference>
 				<pythonReference>
-                   Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </pythonReference>
 			</param>
 			<param name="stat_type8" displayname="Statistics Type 8" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
@@ -1002,7 +1023,7 @@
                     raster will be ignored in the statistic calculation.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;
                 </dialogReference>
 				<pythonReference>
-                   Statistics
+                    Statistics
                     Type — Statistics type to be calculated. The default value
                     is ALL.&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;ALL
                     — All of the statistics will be calculated. This is the
@@ -1053,7 +1074,7 @@
                     should NOT start with underscore or a number.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </dialogReference>
 				<pythonReference>
-                   Field
+                    Field
                     Identifier — String or alphanumeric values that will be
                     concatenated with output table field headers. When choosing
                     a Field Identifier value, please consider the following:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;It
@@ -1065,10 +1086,12 @@
 			</param>
 			<param name="in_raster9" displayname="Raster Layer 9" type="Optional" direction="Input" datatype="Raster Layer" expression="{in_raster9}">
 				<dialogReference>
-                    Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </dialogReference>
 				<pythonReference>
-                   Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </pythonReference>
 			</param>
 			<param name="stat_type9" displayname="Statistics Type 9" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
@@ -1112,7 +1135,7 @@
                     raster will be ignored in the statistic calculation.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;
                 </dialogReference>
 				<pythonReference>
-                   Statistics
+                    Statistics
                     Type — Statistics type to be calculated. The default value
                     is ALL.&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;ALL
                     — All of the statistics will be calculated. This is the
@@ -1163,7 +1186,7 @@
                     should NOT start with underscore or a number.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </dialogReference>
 				<pythonReference>
-                   Field
+                    Field
                     Identifier — String or alphanumeric values that will be
                     concatenated with output table field headers. When choosing
                     a Field Identifier value, please consider the following:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;It
@@ -1175,10 +1198,12 @@
 			</param>
 			<param name="in_raster10" displayname="Raster Layer 10" type="Optional" direction="Input" datatype="Raster Layer" expression="{in_raster10}">
 				<dialogReference>
-                    Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </dialogReference>
 				<pythonReference>
-                   Raster Layer — Raster dataset on which to calculate statistics from.
+                    Raster Layer — Raster dataset on which to calculate
+                    statistics from.
                 </pythonReference>
 			</param>
 			<param name="stat_type10" displayname="Statistics Type 10" type="Optional" direction="Input" datatype="String" expression="{ALL | MEAN | MAJORITY | MAXIMUM | MEDIAN | MINIMUM | MINORITY | RANGE | STANDARD DEVIATION | SUM | VARIETY}">
@@ -1222,7 +1247,7 @@
                     raster will be ignored in the statistic calculation.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;
                 </dialogReference>
 				<pythonReference>
-                   Statistics
+                    Statistics
                     Type — Statistics type to be calculated. The default value
                     is ALL.&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;ALL
                     — All of the statistics will be calculated. This is the
@@ -1273,7 +1298,7 @@
                     should NOT start with underscore or a number.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </dialogReference>
 				<pythonReference>
-                   Field
+                    Field
                     Identifier — String or alphanumeric values that will be
                     concatenated with output table field headers. When choosing
                     a Field Identifier value, please consider the following:&lt;/SPAN&gt;&lt;/P&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;It
@@ -1283,8 +1308,32 @@
                     should NOT start with underscore or a number.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </pythonReference>
 			</param>
+			<param name="out_data" displayname="Output Data" type="Derived" direction="Output" datatype="DEDbaseTable" expression="{out_data}">
+				<dialogReference>
+                    Output table containing statistical table.
+                </dialogReference>
+				<pythonReference>
+                    Output table containing statistical table.
+                </pythonReference>
+			</param>
+			<param name="emails" displayname="E-mails" type="Optional" direction="Input" datatype="String" expression="{out_data}">
+				<dialogReference>
+                    List of emails comma separated that will receive the output.
+                    When the process is finished, the result will be e-mailed to
+                    the recipients listed.
+                </dialogReference>
+				<pythonReference>
+                   List of emails comma separated that will receive the output.
+                    When the process is finished, the result will be e-mailed to
+                    the recipients listed.
+                </pythonReference>
+			</param>
 		</parameters>
-		<summary>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Calculates statistics on values of the land suitability raster within the zones of other dataset and reports the results in a number of tables.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;</summary>
+		<summary>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Calculates
+            statistics on values of the land suitability raster within the
+            zones of other dataset and reports the results in a number of
+            tables.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;
+        </summary>
 		<usage>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;A
             zone is defined as all areas in the input that have the same value.
             The areas do not have to be contiguous.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;When
@@ -1386,7 +1435,8 @@
             number of rows in the output table is the number of zones.&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN
             /&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
         </usage>
-		<arcToolboxHelpPath>c:\program files (x86)\arcgis\desktop10.5\Help\gp</arcToolboxHelpPath>
+		<arcToolboxHelpPath>c:\program files (x86)\arcgis\desktop10.5\Help\gp
+        </arcToolboxHelpPath>
 	</tool>
 	<mdHrLv>
 		<ScopeCd value="005"/>

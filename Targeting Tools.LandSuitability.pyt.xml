@@ -1312,7 +1312,19 @@
                     feature class that defines processing extent.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </pythonReference>
 			</param>
-			<param name="emails" displayname="E-mails" type="Optional" direction="Input" datatype="String" expression="{emails}"><dialogReference>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;E-mails&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;</dialogReference></param></parameters>
+			<param name="emails" displayname="E-mails" type="Optional" direction="Input" datatype="String" expression="{out_data}">
+				<dialogReference>
+                    List of emails comma separated that will receive the output.
+                    When the process is finished, the result will be e-mailed to
+                    the recipients listed.
+                </dialogReference>
+				<pythonReference>
+                   List of emails comma separated that will receive the output.
+                    When the process is finished, the result will be e-mailed to
+                    the recipients listed.
+                </pythonReference>
+			</param>
+		</parameters>
 		<summary>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Given
             a set of raster data and user optimal values, the Land Suitability
             tool determines the most suitable place to carry out an activity.

@@ -62,7 +62,7 @@ class Toolbox(object):
         self.label = "Targeting Tools"
         self.alias = "Target Tools"
         # List of tool classes associated with this toolbox
-        self.tools = [LandSuitability, LandStatistics, LandSimilarity]
+        self.tools = [LandSuitability, LandSimilarity, LandStatistics]
 
 
 class TargetingTool(object):
@@ -172,7 +172,7 @@ Subject: %s
                     output_url = output_path
             else:
                 output_url_list = []
-                for name, out_path in output_path:
+                for name, out_path in output_path.iteritems():
                     output_url_row = '{}\n{}'.format(name, out_path)
                     output_url_list.append(output_url_row)
                 output_url = '\n'.join(output_url_list)
@@ -924,7 +924,7 @@ class LandSuitability(TargetingTool):
 
             arcpy.SetParameterAsText(61, output_path)
             self.submit_message(output_path, parameters[62].value,
-                                'Land Suitability')
+                                self.label)
 
         except Exception as ex:
             tb = sys.exc_info()[2]
@@ -1494,7 +1494,7 @@ class LandSimilarity(TargetingTool):
                 arcpy.SetParameterAsText(5, final_mess_path)
                 result_path['Output MESS Raster'] = final_mess_path
 
-            self.submit_message(result_path, parameters[6], 'Land Similarity')
+            self.submit_message(result_path, parameters[6], self.label)
             # self.load_output_to_mxd(out_mess_ras_path, out_mnobis_ras_path)
             shutil.rmtree(ras_temp_path)  # Delete directory
 
@@ -2143,24 +2143,24 @@ class LandStatistics(TargetingTool):
                 self.setFieldWarningMessage(parameters[5], parameters[6],
                                             warning_message)
         if parameters[7].value and parameters[7].altered:
-            if parameters[0].value and parameters[0].altered:
-                in_fc_para = parameters[7]
-                in_fc = parameters[7].valueAsText.replace("\\", "/")
-                # Get spatial reference of input value raster
-                # in_fc_ref = arcpy.Describe(
-                #     in_fc).SpatialReference
-                # in_ras_ref_name = in_ras_ref.name
-                # in_fc_ref = self.re_project_vector(in_fc, in_ras_ref_name)
+
+            in_fc_para = parameters[7]
+            in_fc = parameters[7].valueAsText.replace("\\", "/")
+            # Get spatial reference of input value raster
+            # in_fc_ref = arcpy.Describe(
+            #     in_fc).SpatialReference
+            # in_ras_ref_name = in_ras_ref.name
+            # in_fc_ref = self.re_project_vector(in_fc, in_ras_ref_name)
 
 
 
-                warning_msg = "{0} spatial reference is different from the input {1}"
-                super(LandStatistics, self).setSpatialWarning(in_ras_ref,
-                                                              in_ras_ref,
-                                                              in_fc_para,
-                                                              warning_msg,
-                                                              in_fc,
-                                                              in_raster)  # Set spatial reference warning
+            warning_msg = "{0} spatial reference is different from the input {1}"
+            super(LandStatistics, self).setSpatialWarning(in_ras_ref,
+                                                          in_ras_ref,
+                                                          in_fc_para,
+                                                          warning_msg,
+                                                          in_fc,
+                                                          in_raster)  # Set spatial reference warning
         if parameters[9].value and parameters[9].altered:
             in_val_raster = self.prepare_value_table(parameters)
             first_in_raster = in_val_raster[0][0]
@@ -2312,28 +2312,42 @@ class LandStatistics(TargetingTool):
                             in_fc = new_fc
 
                     in_fc_field = parameters[8].valueAsText
-                    arcpy.AddMessage(
-                        "Converting polygon {0} to raster \n".format(
-                            os.path.basename(in_fc_file))
-                    )
 
-                    # Convert polygon to raster
-                    arcpy.PolygonToRaster_conversion(
-                        in_fc, in_fc_field, ras_temp_path + "ras_poly",
-                        "CELL_CENTER", "NONE", in_raster
-                    )
+                    try:
+                        arcpy.AddMessage(
+                            "Converting polygon {0} to raster \n".format(
+                                os.path.basename(in_fc_file))
+                        )
+                        # Convert polygon to raster
+                        arcpy.PolygonToRaster_conversion(
+                            in_fc, in_fc_field, ras_temp_path + "ras_poly",
+                            "CELL_CENTER", "NONE", in_raster
+                        )
 
-                    arcpy.gp.Times_sa(ras_temp_path + "ras_poly", "1000",
-                                      ras_temp_path + "ras_multi")  # Process: Times
-                    # Reclassify input raster
-                    in_raster = self.reclassifyRaster(parameters,
-                                                      ras_temp_path)
-                    self.zonalStatisticsInit(in_raster, ras_temp_path,
-                                             parameters,
-                                             ras_add=True)
-                    self.configZonalStatisticsTable(parameters, ras_temp_path,
-                                                    self.scratch_path,
-                                                    in_vector=True)
+                        arcpy.gp.Times_sa(ras_temp_path + "ras_poly", "1000",
+                                          ras_temp_path + "ras_multi")  # Process: Times
+                        # Reclassify input raster
+                        in_raster = self.reclassifyRaster(parameters,
+                                                          ras_temp_path)
+                        self.zonalStatisticsInit(in_raster, ras_temp_path,
+                                                 parameters,
+                                                 ras_add=True)
+                        self.configZonalStatisticsTable(parameters, ras_temp_path,
+                                                        self.scratch_path,
+                                                        in_vector=True)
+                    except Exception as ex:
+                        arcpy.AddMessage('{0}. \n'
+                                         'Proceeding without Feature Class.\n'.format(ex))
+                        in_raster = self.reclassifyRaster(parameters,
+                                                          ras_temp_path)
+                        self.zonalStatisticsInit(in_raster, ras_temp_path,
+                                                 parameters,
+                                                 ras_add=False)
+                        self.configZonalStatisticsTable(parameters,
+                                                        ras_temp_path,
+                                                        self.scratch_path,
+                                                        in_vector=False)
+
             else:
                 in_raster = self.reclassifyRaster(parameters, ras_temp_path)
                 self.zonalStatisticsInit(in_raster, ras_temp_path, parameters,
@@ -2989,40 +3003,63 @@ class LandStatistics(TargetingTool):
         #     combined_stat_table = out_table + "/" + in_dbf_file
 
         if parameters[7].value is not None and arcpy.Exists(first_stat_table):
-            in_fc_field = parameters[8].valueAsText
-            ras_poly = ras_temp_path + "ras_poly"
-            # try:
-            if not arcpy.ListFields(first_stat_table, in_fc_field):
-                arcpy.AddMessage(
-                    "Adding fields to {0} \n".format(
-                        os.path.basename(first_stat_table)))
-                self.addTableField(first_stat_table,
-                                   in_fc_field)  # Adds field to a .dbf table
-            # except Exception as ex:
-            #     arcpy.AddMessage(ex)
-            # Process: Calculate Field
-            arcpy.AddMessage(
-                "Adding suitability rank values to new fields in {0} \n".format(
+            try:
+                in_fc_field = parameters[8].valueAsText
+                ras_poly = ras_temp_path + "ras_poly"
+                try:
+                    if not arcpy.ListFields(first_stat_table, in_fc_field):
+                        arcpy.AddMessage(
+                            "Adding fields to {0} \n".format(
+                                os.path.basename(first_stat_table)))
+                        # Adds field to a .dbf table
+                        self.addTableField(first_stat_table, in_fc_field)
+                except Exception as ex:
+                    arcpy.AddMessage(ex)
+                # Process: Calculate Field
+
+                # TODO please check with Nicholas the use of this.
+                # # arcpy.CalculateField_management(first_stat_table, "POLY_VAL",
+                # #                                 "(!VALUE! - str((!VALUE![3:])) / 1000",
+                # #                                 "PYTHON", "")
+                #
+                try:
+                    arcpy.AddMessage(
+                        "Adding suitability rank values to new fields in {0} \n".format(
+                            os.path.basename(first_stat_table)))
+                    arcpy.CalculateField_management(first_stat_table, "LAND_RANK",
+                                                    "str(!VALUE!)[3:]", "PYTHON", "")
+                except Exception as ex:
+                    arcpy.AddMessage(
+                        "{} \n".format(ex)
+                    )
+                # arcpy.CalculateField_management(first_stat_table, "POLY_VAL",
+                #                                 "([VALUE] - Right([VALUE] , 3)) / 1000",
+                #                                 "VB", "")
+                # arcpy.CalculateField_management(first_stat_table, "LAND_RANK",
+                #                                 "Right([VALUE] , 3)", "VB", "")
+                # Add values to table
+                arcpy.AddMessage("Adding ID values to new fields in {0} \n".format(
                     os.path.basename(first_stat_table)))
-            # TODO please check with Nicholas the use of this.
-            # arcpy.CalculateField_management(first_stat_table, "POLY_VAL",
-            #                                 "(!VALUE! - str((!VALUE![3:])) / 1000",
-            #                                 "PYTHON", "")
+                self.addValuesZonalStatisticsTable(in_fc_field, ras_poly,
+                                                   first_stat_table)
 
-            arcpy.CalculateField_management(first_stat_table, "LAND_RANK",
-                                            "str(!VALUE!)[3:]", "PYTHON", "")
-            # Add values to table
-            arcpy.AddMessage("Adding ID values to new fields in {0} \n".format(
-                os.path.basename(first_stat_table)))
-            self.addValuesZonalStatisticsTable(in_fc_field, ras_poly,
-                                               first_stat_table)
+                arcpy.AddMessage(
+                    "Moving file {0} to {1} \n".format(
+                        os.path.basename(first_stat_table),
+                        os.path.basename(combined_stat_table))
+                )
+                self.moveFile(first_stat_table, combined_stat_table)
+            except Exception as ex:
+                arcpy.AddMessage(
+                    "Error: {} \n".format(ex)
+                )
+                arcpy.AddMessage(
+                    "Moving file {0} to {1} \n".format(
+                        os.path.basename(first_stat_table),
+                        os.path.basename(combined_stat_table))
+                )
 
-            arcpy.AddMessage(
-                "Moving file {0} to {1} \n".format(
-                    os.path.basename(first_stat_table),
-                    os.path.basename(combined_stat_table))
-            )
-            self.moveFile(first_stat_table, combined_stat_table)
+                self.moveFile(first_stat_table, combined_stat_table)
         else:
             arcpy.AddMessage(
                 "Moving file {0} to {1} \n".format(
@@ -3034,7 +3071,7 @@ class LandStatistics(TargetingTool):
 
         arcpy.SetParameterAsText(39, combined_stat_table)
 
-        self.submit_message(combined_stat_table, parameters[40], 'Land Statistics')
+        self.submit_message(combined_stat_table, parameters[40], self.label)
 
     def addTableField(self, first_stat_table, in_fc_field):
         """ Adds field to a .dbf table
