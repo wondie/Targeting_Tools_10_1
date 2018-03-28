@@ -154,6 +154,8 @@ Subject: %s
             arcpy.AddMessage("Failed to send the result to your e-mail.")
 
     def submit_message(self, output_path, parameter, tool):
+        if parameter is None:
+            return
         emails = parameter.valueAsText
         if emails is None:
             return
@@ -1301,8 +1303,9 @@ class LandSimilarity(TargetingTool):
 
     def isLicensed(self):
         """ Set whether tool is licensed to execute."""
+        # Check availability of Spatial Analyst
         spatialAnalystCheckedOut = super(LandSimilarity,
-                                         self).isLicensed()  # Check availability of Spatial Analyst
+                                         self).isLicensed()
         return spatialAnalystCheckedOut
 
     def updateParameters(self, parameters):
@@ -1317,8 +1320,9 @@ class LandSimilarity(TargetingTool):
             if not parameters[3].value:  # Set initial value
                 root_dir = "C:/Program Files/R"
                 if os.path.isdir(root_dir):
-                    parameters[3].value = self.getRExecutable(
-                        root_dir)  # Get R executable file
+                    # Get R executable file
+                    parameters[3].value = self.getRExecutable(root_dir)
+
         return
 
     def updateMessages(self, parameters):
@@ -1828,7 +1832,7 @@ class LandSimilarity(TargetingTool):
                                    creationflags=CREATE_NO_WINDOW)
         process.wait()
 
-        arcpy.AddMessage("Print {}\n".format(process.stdout))
+        # arcpy.AddMessage("Print {}\n".format(process.stdout))
 
     def asciiToRasterConversion(
             self, parameters, ras_temp_path, out_mnobis_ras, out_mess_ras):
@@ -3040,8 +3044,13 @@ class LandStatistics(TargetingTool):
                 # Add values to table
                 arcpy.AddMessage("Adding ID values to new fields in {0} \n".format(
                     os.path.basename(first_stat_table)))
-                self.addValuesZonalStatisticsTable(in_fc_field, ras_poly,
-                                                   first_stat_table)
+                try:
+                    self.addValuesZonalStatisticsTable(in_fc_field, ras_poly,
+                                                       first_stat_table)
+                except Exception as ex:
+                    arcpy.AddMessage(
+                        "Error: {} \n".format(ex)
+                    )
 
                 arcpy.AddMessage(
                     "Moving file {0} to {1} \n".format(

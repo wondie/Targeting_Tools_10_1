@@ -5,8 +5,8 @@
 		<CreaTime>14372500</CreaTime>
 		<ArcGISFormat>1.0</ArcGISFormat>
 		<SyncOnce>TRUE</SyncOnce>
-		<ModDate>20180322</ModDate>
-		<ModTime>211932</ModTime>
+		<ModDate>20180328</ModDate>
+		<ModTime>072843</ModTime>
 		<scaleRange>
 			<minScale>150000000</minScale>
 			<maxScale>5000</maxScale>
@@ -1308,15 +1308,7 @@
                     should NOT start with underscore or a number.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
                 </pythonReference>
 			</param>
-			<param name="out_data" displayname="Output Data" type="Derived" direction="Output" datatype="DEDbaseTable" expression="{out_data}">
-				<dialogReference>
-                    Output table containing statistical table.
-                </dialogReference>
-				<pythonReference>
-                    Output table containing statistical table.
-                </pythonReference>
-			</param>
-			<param name="emails" displayname="E-mails" type="Optional" direction="Input" datatype="String" expression="{out_data}">
+			<param name="emails" displayname="E-mails" type="Optional" direction="Input" datatype="String" expression="{emails}">
 				<dialogReference>
                     List of emails comma separated that will receive the output.
                     When the process is finished, the result will be e-mailed to
@@ -1332,8 +1324,7 @@
 		<summary>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Calculates
             statistics on values of the land suitability raster within the
             zones of other dataset and reports the results in a number of
-            tables.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;
-        </summary>
+            tables.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;</summary>
 		<usage>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;UL&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;A
             zone is defined as all areas in the input that have the same value.
             The areas do not have to be contiguous.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;When
@@ -1435,8 +1426,7 @@
             number of rows in the output table is the number of zones.&lt;/SPAN&gt;&lt;/P&gt;&lt;P&gt;&lt;SPAN
             /&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
         </usage>
-		<arcToolboxHelpPath>c:\program files (x86)\arcgis\desktop10.5\Help\gp
-        </arcToolboxHelpPath>
+		<arcToolboxHelpPath>c:\program files (x86)\arcgis\desktop10.5\Help\gp</arcToolboxHelpPath>
 	</tool>
 	<mdHrLv>
 		<ScopeCd value="005"/>
