@@ -6,7 +6,7 @@
 		<ArcGISFormat>1.0</ArcGISFormat>
 		<SyncOnce>TRUE</SyncOnce>
 		<ModDate>20180328</ModDate>
-		<ModTime>072843</ModTime>
+		<ModTime>143457</ModTime>
 		<scaleRange>
 			<minScale>150000000</minScale>
 			<maxScale>5000</maxScale>
@@ -1306,18 +1306,6 @@
                     should NOT have more than two characters&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;Eliminate
                     any character that is NOT alphanumeric or an underscore.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;LI&gt;&lt;P&gt;&lt;SPAN&gt;It
                     should NOT start with underscore or a number.&lt;/SPAN&gt;&lt;/P&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
-                </pythonReference>
-			</param>
-			<param name="emails" displayname="E-mails" type="Optional" direction="Input" datatype="String" expression="{emails}">
-				<dialogReference>
-                    List of emails comma separated that will receive the output.
-                    When the process is finished, the result will be e-mailed to
-                    the recipients listed.
-                </dialogReference>
-				<pythonReference>
-                   List of emails comma separated that will receive the output.
-                    When the process is finished, the result will be e-mailed to
-                    the recipients listed.
                 </pythonReference>
 			</param>
 		</parameters>
