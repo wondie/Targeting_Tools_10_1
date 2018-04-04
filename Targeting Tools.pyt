@@ -42,7 +42,7 @@ PORT = 587
 FROM = 'targetingtools@gmail.com'
 PASS = 'landsimilarity'
 REST_URL = 'http://climatewizard.ciat.cgiar.org/arcgis/rest/'
-
+R_SCRIPTS_PATH = 'E:/Inetpub/targetingtools.ciat.cgiar.org/R_Scripts/'
 
 def parameter(displayName, name, datatype, parameterType='Required',
               direction='Input', multiValue=False):
@@ -327,7 +327,7 @@ Subject: %s
             Return: None
         """
         if out_ras_1.value and out_ras_1.altered:
-            if out_ras_2.value:
+            if out_ras_2.value is not None:
                 if out_ras_1.valueAsText == out_ras_2.valueAsText:
                     out_ras_1.setErrorMessage(
                         "Duplicate output names are not allowed")
@@ -657,7 +657,7 @@ class LandSuitability(TargetingTool):
                 parameters: Parameters from the tool.
             Returns: Internal validation messages.
         """
-        if parameters[0].value:
+        if parameters[0].value is not None:
             prev_input = ""
             ras_ref = []
             all_ras_ref = []
@@ -1326,8 +1326,8 @@ class LandSimilarity(TargetingTool):
                 parameters: Parameters from the tool.
             Returns: Parameter values.
         """
-        if parameters[0].value:
-            if not parameters[3].value:  # Set initial value
+        if parameters[0].value is not None:
+            if parameters[3].value is None:  # Set initial value
                 root_dir = "C:/Program Files/R"
                 if os.path.isdir(root_dir):
                     # Get R executable file
@@ -1344,7 +1344,7 @@ class LandSimilarity(TargetingTool):
         """
         # output to the screen
 
-        if parameters[0].value:
+        if parameters[0].value is None:
             prev_input = ""
             ras_ref = []
             all_ras_ref = []
@@ -1452,7 +1452,8 @@ class LandSimilarity(TargetingTool):
             #     in_fc_pt = self.copyDataset(ras_temp_path, in_fc_pt, in_fc_pt)
 
             # raster sample creation
-            if parameters[2].value:
+            if parameters[2].value is not None:
+                arcpy.AddMessage('Getting extent from the feature class.')
                 in_fc = super(LandSimilarity, self).getInputFc(parameters[2])[
                     "in_fc"]
                 extent = arcpy.Describe(
@@ -1462,6 +1463,7 @@ class LandSimilarity(TargetingTool):
                     parameters, in_fc_pt, ras_temp_path, in_fc, extent
                 )
             else:
+                arcpy.AddMessage('Creating value sample without without feature class extent.')
                 self.createValueSample(parameters, in_fc_pt, ras_temp_path,
                                        in_fc=None,
                                        extent=None)  # Create raster cell value sample
@@ -1772,29 +1774,30 @@ class LandSimilarity(TargetingTool):
             row_count += 1
             i = row_count
         with open(ras_temp_path + 'out_script.r', 'w') as f:
-            cwd = os.path.dirname(os.path.realpath(
-                __file__))  # Toolbox current working directory
+            # cwd = os.path.dirname(os.path.realpath(
+            #     __file__))  # Toolbox current working directory
             # cwd = self.getDirectoryPath(cwd)  # Get subdirectory path
             # similar_script = self.getFilePath(cwd,
             #                                   "similarity_")  # Get script path
             # read_script = self.getFilePath(cwd, "readAscii")
             # write_script = self.getFilePath(cwd, "writeAscii")
-            similar_script_rel = 'R_Scripts/similarity_analysis.r'
-            read_script_rel = 'R_Scripts/readAscii.r'
-            write_script_rel = 'R_Scripts/writeAscii.r'
-            script_dir = os.path.dirname(__file__)
-
-            similar_script = os.path.join(script_dir,
-                                          similar_script_rel).replace("\\",
-                                                                      "/")
-            read_script = os.path.join(script_dir, read_script_rel).replace(
-                "\\", "/")
-            write_script = os.path.join(script_dir, write_script_rel).replace(
-                "\\", "/")
+            similar_script_rel = os.path.join(R_SCRIPTS_PATH, 'similarity_analysis.r').replace("\\", "/")
+            read_script_rel = os.path.join(R_SCRIPTS_PATH, 'readAscii.r').replace("\\", "/")
+            write_script_rel = os.path.join(R_SCRIPTS_PATH, 'writeAscii.r').replace("\\", "/")
+            # script_dir = os.path.dirname(__file__)
+            #
+            # similar_script = os.path.join(script_dir,
+            #                               similar_script_rel).replace("\\",
+            #                                                           "/")
+            # read_script = os.path.join(script_dir, read_script_rel).replace(
+            #     "\\", "/")
+            # write_script = os.path.join(script_dir, write_script_rel).replace(
+            #     "\\", "/")
             # Write out a script
-            f.write(
-                'source("' + similar_script + '"); similarityAnalysis(' + str(
-                    i) + ',"' + read_script + '","' + write_script + '","' + ras_temp_path + '") \n')
+            r_script = 'source("' + similar_script_rel + '"); similarityAnalysis(' + str(
+                    i) + ',"' + read_script_rel + '","' + write_script_rel + '","' + ras_temp_path + '") \n'
+            arcpy.AddMessage('Creating R Script: {}'.format(r_script))
+            f.write(r_script)
 
     def getDirectoryPath(self, cwd):
         """ Get subdirectory path from the toolbox directory
@@ -1828,7 +1831,7 @@ class LandSimilarity(TargetingTool):
         """
         r_cmd = '"' + r_exe_path + '" --vanilla --slave --file="' + ras_temp_path + 'out_script.r"'  # r command
 
-        arcpy.AddMessage("Running similarity analysis \n")
+        arcpy.AddMessage("Running similarity analysis: {} \n".format(r_cmd))
         # TODO Apply this change on desktop version
         CREATE_NO_WINDOW = 0x08000000
         # Open shell and run R command
@@ -1863,7 +1866,7 @@ class LandSimilarity(TargetingTool):
 
         r_version = r_exe_file.split("bin")[0]
         r_modEvA = r_version + "library/modEvA"
-        arcpy.AddMessage('Print {}'.format(r_modEvA))
+
         if not os.path.isdir(r_modEvA):
             arcpy.AddError(
                 'Error: {0} package missing.\n'.format(
@@ -2056,7 +2059,7 @@ class LandStatistics(TargetingTool):
         """
         if parameters[1].value == "EQUAL INTERVAL":
             parameters[2].enabled = True
-            if not parameters[2].value:
+            if parameters[2].value is None:
                 parameters[2].value = 5  # Initial value
             self.disableEnableParameter(parameters, 2, 7, False,
                                         enabled_val=True)  # Disable or enable tool parameters
@@ -2149,15 +2152,15 @@ class LandStatistics(TargetingTool):
                 parameters[5].setErrorMessage("To value field required")
             if parameters[6].value is None:
                 parameters[6].setErrorMessage("New value field required")
-            if parameters[4].value and parameters[5].value:
+            if parameters[4].value is not None and parameters[5].value is not None:
                 warning_message = 'This field is similar to "From value field"'
                 self.setFieldWarningMessage(parameters[4], parameters[5],
                                             warning_message)
-            if parameters[4].value and parameters[6].value:
+            if parameters[4].value is not None and parameters[6].value is not None:
                 warning_message = 'This field is similar to "From value field"'
                 self.setFieldWarningMessage(parameters[4], parameters[6],
                                             warning_message)
-            if parameters[5].value and parameters[6].value:
+            if parameters[5].value is not None and parameters[6].value is not None:
                 warning_message = 'This field is similar to "To value field"'
                 self.setFieldWarningMessage(parameters[5], parameters[6],
                                             warning_message)
@@ -2264,6 +2267,7 @@ class LandStatistics(TargetingTool):
                 os.makedirs(ras_temp_path)  # Create temporary directory
 
             # Feature class rasterization and overlay
+            #TODO add this check in desktop version
             if parameters[7].value is not None:
                 #TODO add this check on desktop too.
                 if arcpy.Exists(parameters[7].value):
