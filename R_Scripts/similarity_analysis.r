@@ -1,51 +1,122 @@
-usePackage <- function(p) {
-	if (!is.element(p, installed.packages()[,1])) {
-		print("Installing package")
-		if (p == "modEvA"){
-			install.packages("modEvA", repos="http://R-Forge.R-project.org")
-		} else {
-			install.packages(p, dep = TRUE)
-		}
-	}
-	print("Loading required package")
-	require(p, character.only = TRUE)	
+installPackage <- function(pkg) {
+  # Install and add a package
+  # Args:
+  #   pkg: A list of packages to be installed and CRAN URLs
+  # Return: None
+
+  for (i in 1:length(pkg)){
+    pkgName <- names(pkg)[i]
+    if (!is.element(pkgName, installed.packages()[,1])) {
+      print(paste("Installing package: ", pkgName))
+      install.packages(pkgName, repos=pkg[[i]], dep = TRUE)
+    }
+    print(paste("Loading package: ", pkgName))
+    require(pkgName, character.only = TRUE)
+  }
 }
 
-similarityAnalysis <- function(cntRaster, read_script, write_script, ras_temp_path)	{
-	## Install package and it's dependencies	
-	usePackage("modEvA")
-	## External scripts
-	source(read_script)  
-	source(write_script)
+readAscii<- function(inFile) {
+  # Scan through the ASCII files while reading data
+  # Args:
+  #   inFile: Input ASCII file
+  # Return:
+  #   asciiData: A list of ASCII header and grid data
 
-	print("Starting statistical similarity analysis...")
+  asciiData <- list()
+  print(paste("Reading: ", inFile, sep=""))
+  for (i in 0:6) {
+    if (i != 6){
+      headerData <- scan(file = inFile, what = 'character', skip = i, nlines = 1, quiet=T)
+      asciiData[tolower(headerData[1])] <- as.numeric(headerData[2])
+    } else {
+      gridData <- scan(file = inFile, skip = i, quiet=T)
+      gridData[gridData == asciiData$nodata_value] <- NA
+      dim(gridData) <- c(asciiData$nrows * asciiData$ncols, 1)
+      asciiData$gridData <- gridData
+    }
+  }
+  return(asciiData)
+}
 
-	outFolder = ras_temp_path
-	dataTable = data.frame()
-	for (cnt in 1:cntRaster)	{
-		inAscii = readAscii(paste(outFolder, "tempAscii_", cnt, ".asc", sep = ""))
-		if (cnt != 1) {
-			dataTable = cbind(dataTable,inAscii$gridData)
-		}
-		else	{
-			dataTable = inAscii$gridData
-		}
-	}
-	pointsTable = read.csv(paste(outFolder, "temp.csv", sep = ""))
-	pointsTableMean = sapply(pointsTable[,7:(7+cntRaster-1)], FUN = "mean")
-	pointsTableSd = sapply(pointsTable[,7:(7+cntRaster-1)], FUN = "sd")
-	dataMat = as.matrix(dataTable)
-	## Mahalanobis Distance
-	print("Calculating Mahalanobis Distance (D2)")
-	Sx<-cov(dataTable, use = "complete.obs")
-	D2 = mahalanobis(dataMat, pointsTableMean, Sx)
-	inAscii$gridData = D2
-	writeAscii(paste(outFolder, "MahalanobisDist.asc", sep = ""), inAscii)
-	## MESS
-	print("Calculating Multivariate Environmental Similarity Surface (MESS)")
-	notNa = !is.na(apply(dataMat, MARGIN = 1, FUN = "sum"))
-	outMess = MESS(pointsTable[,7:(7+cntRaster-1)], dataTable[notNa,])
-	inAscii$gridData = rep(NA, dim(dataTable)[1])
-	inAscii$gridData[notNa] = outMess$TOTAL
-	writeAscii(paste(outFolder, "MESS.asc", sep = ""), inAscii)
+writeAscii <- function(outFile, asciiData)  {
+  # Write ASCII data to a file
+  # Args:
+  #   outFile:
+  #   asciiData: A list of ASCII header and grid data
+  # Return: None
+
+  noData <- -9999
+  gridData <- asciiData$gridData
+  asciiFile <- file(outFile, "w")
+  for (i in 1:length(asciiData)) {
+    if (names(asciiData[i]) == "nodata_value") {
+      writeLines(paste("NODATA_value  ", as.character(noData), sep = ""), asciiFile)
+    } else if (names(asciiData[i]) == "gridData") {
+      gridData[!is.finite(gridData)] <- noData  # Replace NA and INF values with -9999
+    } else {
+      writeLines(paste(names(asciiData[i]), "         ", as.character(asciiData[i]), sep = ""), asciiFile)
+    }
+  }
+  print(paste("Saving: ", outFile, sep = ""))
+  write(gridData, asciiFile, ncolumns = asciiData$ncols, append = TRUE)
+  close(asciiFile)
+}
+
+calculateMahalanobis <- function (threshold, totalFiles, outFolder, df, asciiData){
+  # Caculate mahalanobis distance
+  # Args:
+  #   threshold: Corresponding covariate/raster values extracted on a point feature
+  #   totalFiles: Total number of files to be processed
+  #   outFolder: Output path
+  #   df: Data frame with grid data as ASCII
+  #   asciiData: A list of ASCII header and grid data
+  # Return: None
+
+  mn <- sapply(threshold[,7:(7+totalFiles-1)], mean)
+  print("Calculating Mahalanobis Distance")
+  asciiData$gridData <- mahalanobis(df, mn, cov(df, use = "complete.obs"))
+  writeAscii(paste(outFolder, "MahalanobisDist.asc", sep = ""), asciiData)
+}
+
+calculateMESS <- function(df, totalFiles, threshold, asciiData, outFolder) {
+  # Multivariate Environmental Similarity Surface (MESS)
+  # Args:
+  #   df: Data frame with grid data as ASCII
+  #   totalFiles: Total number of files to be processed
+  #   threshold: Corresponding covariate/raster values extracted on a point feature
+  #   asciiData: A list of ASCII header and grid data
+  #   outFolder: Output path
+  # Return: No
+
+  boolNa = !is.na(apply(df, 1, sum))
+  outMess = MESS(threshold[,7:(7 + totalFiles - 1)], df[boolNa,])
+  asciiData$gridData = rep(NA, dim(df)[1])
+  asciiData$gridData[boolNa] = outMess$TOTAL
+  writeAscii(paste(outFolder, "MESS.asc", sep = ""), asciiData)
+}
+
+similarityAnalysis <- function(totalFiles, workSpace) {
+  # Performs similarity analysis
+  # Args:
+  #   totalFiles: Total number of files to be processed
+  #   fileDir: Path to where files are located
+  # Return: None
+
+  usCRAN = "http://cran.us.r-project.org"
+  installPackage(list(raster = c(usCRAN), rgdal = c(usCRAN), modEvA = c("http://R-Forge.R-project.org")))
+
+  print('Starting similarity anlysis...')
+  df <- data.frame()
+  asciiData <- list()
+  threshold <- read.csv(paste(workSpace, "temp.csv", sep = ""))
+  for (i in 1:totalFiles){
+    asciiData <- readAscii(paste(workSpace, "tempAscii_", i, ".asc", sep = ""))
+    if (i != 1) {
+      df <- cbind(df, asciiData$gridData)
+    } else	{
+      df <- asciiData$gridData
+    }
+  }
+  calculateMahalanobis(threshold, totalFiles, workSpace, df, asciiData)
+  calculateMESS(df, totalFiles, threshold, asciiData, workSpace)
 }

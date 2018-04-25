@@ -42,7 +42,7 @@ PORT = 587
 FROM = 'targetingtools@gmail.com'
 PASS = 'landsimilarity'
 REST_URL = 'http://climatewizard.ciat.cgiar.org/arcgis/rest/'
-R_SCRIPTS_PATH = 'E:/Inetpub/targetingtools.ciat.cgiar.org/R_Scripts/'
+# R_SCRIPTS_PATH = 'E:/Inetpub/targetingtools.ciat.cgiar.org/R_Scripts/'
 
 def parameter(displayName, name, datatype, parameterType='Required',
               direction='Input', multiValue=False):
@@ -176,7 +176,7 @@ Subject: %s
             emails_list = emails.split(';')
         else:
             emails_list = emails.split(',')
-        arcpy.AddMessage(emails)
+
         if len(emails) > 0:
             if not isinstance(output_path, OrderedDict):
                 rel_path = output_path.split('arcgisserver/')
@@ -935,7 +935,7 @@ class LandSuitability(TargetingTool):
             # output_ras = arcpy.Raster(output_path)
 
             arcpy.SetParameterAsText(61, output_path)
-            self.submit_message(output_path, parameters[62].value,
+            self.submit_message(output_path, parameters[62],
                                 self.label)
 
         except Exception as ex:
@@ -968,18 +968,23 @@ class LandSuitability(TargetingTool):
             opt_to_val, ras_combine, row_count in self.getRowValue(
             in_raster, ras_max_min):
             i += 1
+
             if extent is not None:
                 # Raster clip operation
+
                 arcpy.AddMessage(
                     "Clipping {0} \n".format(
                         ntpath.basename(ras_file.valueAsText)))
-                arcpy.Clip_management(ras_file.valueAsText,
-                                      "{0} {1} {2} {3}".format(extent.XMin,
-                                                               extent.YMin,
-                                                               extent.XMax,
-                                                               extent.YMax),
-                                      ras_temp_path + "ras_mask1_" + str(i),
-                                      in_fc, "#", "ClippingGeometry")
+                try:
+                    arcpy.Clip_management(ras_file.valueAsText,
+                                          "{0} {1} {2} {3}".format(extent.XMin,
+                                                                   extent.YMin,
+                                                                   extent.XMax,
+                                                                   extent.YMax),
+                                          ras_temp_path + "ras_mask1_" + str(i),
+                                          in_fc, "#", "ClippingGeometry")
+                except Exception:
+                    pass
                 # Masked raster minus operation
                 self.rasterMinus(
                     ras_temp_path + "ras_mask1_" + str(i), minVal,
@@ -1345,49 +1350,51 @@ class LandSimilarity(TargetingTool):
         # output to the screen
 
         if parameters[0].value is None:
-            prev_input = ""
-            ras_ref = []
-            all_ras_ref = []
-            in_val_raster = parameters[0]
-            if parameters[0].altered:
-                num_rows = len(
-                    in_val_raster.values)  # The number of rows in the table
-                prev_ras_val = []
-                i = 0
-                # Get values from the generator function to show update messages
-                for row_count, in_ras_file in self.getRasterFile(
-                        in_val_raster):
-                    i += 1
-                    # Set input raster duplicate warning
-                    if len(prev_ras_val) > 0:
-                        super(LandSimilarity, self).uniqueValueValidator(
-                            prev_ras_val, in_ras_file, parameters[0],
-                            field_id=False)  # Set duplicate input warning
-                        prev_ras_val.append(in_ras_file)
-                    else:
-                        prev_ras_val.append(in_ras_file)
-                    # Get spatial reference for all input raster
-                    spatial_ref = arcpy.Describe(in_ras_file).SpatialReference
-                    all_ras_ref.append(spatial_ref)
-                    # Set raster spatial reference errors
-                    if i == num_rows:
-                        super(LandSimilarity, self).setRasSpatialWarning(
-                            in_ras_file, ras_ref, in_val_raster,
-                            prev_input)  # Set raster spatial warning
-                    else:
-                        spatial_ref = arcpy.Describe(
-                            in_ras_file).SpatialReference  # Get spatial reference of input rasters
-                        ras_ref.append(spatial_ref)
-            if parameters[1].value and parameters[1].altered:
-                super(LandSimilarity, self).setFcSpatialWarning(parameters[1],
-                                                                all_ras_ref[
-                                                                    -1],
-                                                                prev_input)  # Set feature class spatial warning
-            if parameters[2].value and parameters[2].altered:
-                super(LandSimilarity, self).setFcSpatialWarning(parameters[2],
-                                                                all_ras_ref[
-                                                                    -1],
-                                                                prev_input)
+            return
+
+        prev_input = ""
+        ras_ref = []
+        all_ras_ref = []
+        in_val_raster = parameters[0]
+        if parameters[0].altered:
+            num_rows = len(
+                in_val_raster.values)  # The number of rows in the table
+            prev_ras_val = []
+            i = 0
+            # Get values from the generator function to show update messages
+            for row_count, in_ras_file in self.getRasterFile(
+                    in_val_raster):
+                i += 1
+                # Set input raster duplicate warning
+                if len(prev_ras_val) > 0:
+                    super(LandSimilarity, self).uniqueValueValidator(
+                        prev_ras_val, in_ras_file, parameters[0],
+                        field_id=False)  # Set duplicate input warning
+                    prev_ras_val.append(in_ras_file)
+                else:
+                    prev_ras_val.append(in_ras_file)
+                # Get spatial reference for all input raster
+                spatial_ref = arcpy.Describe(in_ras_file).SpatialReference
+                all_ras_ref.append(spatial_ref)
+                # Set raster spatial reference errors
+                if i == num_rows:
+                    super(LandSimilarity, self).setRasSpatialWarning(
+                        in_ras_file, ras_ref, in_val_raster,
+                        prev_input)  # Set raster spatial warning
+                else:
+                    spatial_ref = arcpy.Describe(
+                        in_ras_file).SpatialReference  # Get spatial reference of input rasters
+                    ras_ref.append(spatial_ref)
+        if parameters[1].value and parameters[1].altered:
+            super(LandSimilarity, self).setFcSpatialWarning(parameters[1],
+                                                            all_ras_ref[
+                                                                -1],
+                                                            prev_input)  # Set feature class spatial warning
+        if parameters[2].value and parameters[2].altered:
+            super(LandSimilarity, self).setFcSpatialWarning(parameters[2],
+                                                            all_ras_ref[
+                                                                -1],
+                                                            prev_input)
         if parameters[1].value and parameters[1].altered:
             in_fc = parameters[1].valueAsText.replace("\\", "/")
             result = arcpy.GetCount_management(
@@ -1512,15 +1519,15 @@ class LandSimilarity(TargetingTool):
 
             self.submit_message(result_path, parameters[6], self.label)
             # self.load_output_to_mxd(out_mess_ras_path, out_mnobis_ras_path)
-            shutil.rmtree(ras_temp_path)  # Delete directory
+            # shutil.rmtree(ras_temp_path)  # Delete directory
 
         except Exception as ex:
             tb = sys.exc_info()[2]
-            # tbinfo = traceback.format_tb(tb)[0]
-            # pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+            tbinfo = traceback.format_tb(tb)[0]
+            pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
             msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages(2) + "\n"
             arcpy.AddError(''.join(traceback.format_tb(tb)))
-            # arcpy.AddError(pymsg)
+            arcpy.AddError(pymsg)
             arcpy.AddError(msgs)
             arcpy.AddMessage('ERROR: {0} \n'.format(ex))
 
@@ -1781,9 +1788,12 @@ class LandSimilarity(TargetingTool):
             #                                   "similarity_")  # Get script path
             # read_script = self.getFilePath(cwd, "readAscii")
             # write_script = self.getFilePath(cwd, "writeAscii")
-            similar_script_rel = os.path.join(R_SCRIPTS_PATH, 'similarity_analysis.r').replace("\\", "/")
-            read_script_rel = os.path.join(R_SCRIPTS_PATH, 'readAscii.r').replace("\\", "/")
-            write_script_rel = os.path.join(R_SCRIPTS_PATH, 'writeAscii.r').replace("\\", "/")
+            r_script_path = os.path.join(os.path.dirname(__file__),
+                                          'R_Scripts')
+            similar_script_rel = os.path.join(
+                r_script_path, 'similarity_analysis.r').replace("\\", "/")
+            # read_script_rel = os.path.join(R_SCRIPTS_PATH, 'readAscii.r').replace("\\", "/")
+            # write_script_rel = os.path.join(R_SCRIPTS_PATH, 'writeAscii.r').replace("\\", "/")
             # script_dir = os.path.dirname(__file__)
             #
             # similar_script = os.path.join(script_dir,
@@ -1795,7 +1805,8 @@ class LandSimilarity(TargetingTool):
             #     "\\", "/")
             # Write out a script
             r_script = 'source("' + similar_script_rel + '"); similarityAnalysis(' + str(
-                    i) + ',"' + read_script_rel + '","' + write_script_rel + '","' + ras_temp_path + '") \n'
+                    i) + ', "' + ras_temp_path + '") \n'
+
             arcpy.AddMessage('Creating R Script: {}'.format(r_script))
             f.write(r_script)
 
@@ -1977,19 +1988,26 @@ class LandStatistics(TargetingTool):
             parameter("Input value feature class", "in_val_fcls",
                       "Feature Layer", parameterType='Optional'),
             parameter("Feature field name", "fval_field", "String",
-                      parameterType="Optional")
+                      parameterType="Optional"),
             # parameter("Input value raster", "in_val_ras", "Value Table"),
+
 
         ]
 
         value_table = self.create_value_table_params()
         self.parameters.extend(value_table)
+        self.parameters.append(
+            parameter(
+                'E-mails', 'emails', "GPString", parameterType='Optional'
+            )
+        )
 
         self.parameters.append(
             parameter("Output Data", "out_data", 'DEDbaseTable',
                 parameterType='Derived', direction='Output'
             )
         )
+
 
         self.parameters[1].filter.type = "ValueList"
         self.parameters[1].filter.list = ["NONE", "EQUAL INTERVAL",
@@ -2013,8 +2031,7 @@ class LandStatistics(TargetingTool):
                     self.parameters[i].filter.list = [
                         "ALL", "MEAN", "MAJORITY", "MAXIMUM", "MEDIAN",
                         "MINIMUM", "MINORITY", "RANGE",
-                        "STANDARD DEVIATION",
-                        "SUM", "VARIETY"
+                        "STANDARD DEVIATION", "SUM", "VARIETY"
                     ]
 
             # if i in [11, 15, 19, 23, 27, 31, 35, 39, 43, 47]:
@@ -2079,27 +2096,27 @@ class LandStatistics(TargetingTool):
             self.disableEnableParameter(parameters, 1, 7, False,
                                         enabled_val=True)
         # Set field values
-        if parameters[7].value is not None and parameters[7].altered:
-            #TODO add this check on desktop too.
-            if arcpy.Exists(parameters[7].value):
-                # run the tool
-
-                arcpy.Project_management(
-                    parameters[7].value, parameters[7].value, self.spatial_ref
-                )
-
-                in_fc_field = [f.name for f in
-                               arcpy.ListFields(parameters[7].value,
-                                                field_type="String")]  # Get string field headers
-
-                parameters[8].filter.list = in_fc_field  # Updated filter list
-                if parameters[8].value is None:
-                    if len(in_fc_field) > 0:
-                        parameters[8].value = in_fc_field[0] # Set initial field value
-
-        else:
-            parameters[8].filter.list = []  # Empty filter list
-            parameters[8].value = ""  # Reset field value to None
+        # if parameters[7].value is not None and parameters[7].altered:
+        #     #TODO add this check on desktop too.
+        #     if arcpy.Exists(parameters[7].value):
+        #         # run the tool
+        #
+        #         # arcpy.Project_management(
+        #         #     parameters[7].value, parameters[7].value, self.spatial_ref
+        #         # )
+        #
+        #         # in_fc_field = [f.name for f in
+        #         #                arcpy.ListFields(parameters[7].value,
+        #         #                                 field_type="String")]  # Get string field headers
+        #
+        #         # parameters[8].filter.list = in_fc_field  # Updated filter list
+        #         # if parameters[8].value is None:
+        #         #     if len(in_fc_field) > 0:
+        #         #         parameters[8].value = in_fc_field[0] # Set initial field value
+        #
+        # else:
+        #     # parameters[8].filter.list = []  # Empty filter list
+        #     parameters[8].value = ""  # Reset field value to None
 
         # # Update value table inputs
         # if parameters[9].value:
@@ -2277,43 +2294,43 @@ class LandStatistics(TargetingTool):
                         super(LandStatistics, self).getInputFc(parameters[7])[
                             "in_fc_file"]  # Get feature file name
 
-                    fc_describe = arcpy.Describe(in_fc)
-                    fc_sr = fc_describe.spatialReference
+                    # fc_describe = arcpy.Describe(in_fc)
+                    # fc_sr = fc_describe.spatialReference
                     #TODO check if feature layer works in the desktop version
 
-                    if fc_sr.Name != self.spatial_ref.Name:
-
-                        arcpy.AddMessage(
-                            "Reprojecting polygon {0} \n".format(in_fc_file)
-                        )
-
-                        fc_dir = os.path.dirname(in_fc)
-                        fc_name = os.path.basename(in_fc)
-
-                        if len(fc_name.split('.', 1)) > 1:
-                            proj_name = fc_name.split('.', 1)[0],
-                            proj_ext = fc_name.split('.', 1)[1]
-                            proj_fc_name = '{}_1.{}'.format(proj_name, proj_ext)
-                            proj_fc = '{}/{}'.format(fc_dir, proj_fc_name)
-
-                            arcpy.Copy_management(in_fc,
-                                                  ras_temp_path + fc_name)
-                            arcpy.Project_management(
-                                ras_temp_path + fc_name,
-                                ras_temp_path + proj_fc_name, self.spatial_ref
-                            )
-                            in_fc = ras_temp_path + proj_fc_name
-                        else:
-                            in_fc_file = '{}/fc.shp'.format(self.scratch_path)
-                            arcpy.Project_management(
-                                in_fc, in_fc_file, self.spatial_ref
-                            )
-                            # proj_fc_name = '{}_1'.format(fc_name)
-                            #
-                            # arcpy.Project_management(
-                            #     fc_name, proj_fc_name, self.spatial_ref
-                            # )
-                            in_fc = in_fc_file
+                    # if fc_sr.Name != self.spatial_ref.Name:
+                    #
+                    #     arcpy.AddMessage(
+                    #         "Reprojecting polygon {0} \n".format(in_fc_file)
+                    #     )
+                    #
+                    #     fc_dir = os.path.dirname(in_fc)
+                    #     fc_name = os.path.basename(in_fc)
+                    #
+                    #     if len(fc_name.split('.', 1)) > 1:
+                    #         proj_name = fc_name.split('.', 1)[0],
+                    #         proj_ext = fc_name.split('.', 1)[1]
+                    #         proj_fc_name = '{}_1.{}'.format(proj_name, proj_ext)
+                    #         proj_fc = '{}/{}'.format(fc_dir, proj_fc_name)
+                    #
+                    #         arcpy.Copy_management(in_fc,
+                    #                               ras_temp_path + fc_name)
+                    #         arcpy.Project_management(
+                    #             ras_temp_path + fc_name,
+                    #             ras_temp_path + proj_fc_name, self.spatial_ref
+                    #         )
+                    #         in_fc = ras_temp_path + proj_fc_name
+                    #     else:
+                    #         in_fc_file = '{}/fc.shp'.format(self.scratch_path)
+                    #         arcpy.Project_management(
+                    #             in_fc, in_fc_file, self.spatial_ref
+                    #         )
+                    #         # proj_fc_name = '{}_1'.format(fc_name)
+                    #         #
+                    #         # arcpy.Project_management(
+                    #         #     fc_name, proj_fc_name, self.spatial_ref
+                    #         # )
+                    #         in_fc = in_fc_file
 
                     in_fc_field = parameters[8].valueAsText
                     arcpy.AddMessage(
@@ -2982,13 +2999,13 @@ class LandStatistics(TargetingTool):
             arcpy.AddMessage(
                 "Adding suitability rank values to new fields in {0} \n".format(
                     first_stat_table))
-            # TODO please check with Nicholas the use of this.
-            # arcpy.CalculateField_management(first_stat_table, "POLY_VAL",
-            #                                 "(!VALUE! - str((!VALUE![3:])) / 1000",
-            #                                 "PYTHON", "")
+            # # TODO check with Nicholas the use of this.
+            arcpy.CalculateField_management(first_stat_table, "POLY_VAL",
+                                            "(!VALUE! - int(str(!VALUE!)[-3:])) / 1000",
+                                            "PYTHON_9.3", "")
 
             arcpy.CalculateField_management(first_stat_table, "LAND_RANK",
-                                            "str(!VALUE!)[3:]", "PYTHON", "")
+                                            "int(str(!VALUE!)[-3:])", "PYTHON_9.3", "")
             # Add values to table
             arcpy.AddMessage("Adding ID values to new fields in {0} \n".format(
                 first_stat_table))
@@ -3006,7 +3023,9 @@ class LandStatistics(TargetingTool):
 
             self.moveFile(first_stat_table, combined_stat_table)
 
-        arcpy.SetParameterAsText(39, combined_stat_table)
+        arcpy.SetParameterAsText(40, combined_stat_table)
+        self.submit_message(combined_stat_table, parameters[39],
+                            self.label)
 
     def addTableField(self, first_stat_table, in_fc_field):
         """ Adds field to a .dbf table
