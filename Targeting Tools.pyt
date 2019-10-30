@@ -31,7 +31,7 @@ from collections import OrderedDict
 from dbfread import DBF
 import arcpy
 
-gp = arcgisscripting.create(9.5)
+gp = arcgisscripting.create(10.5)
 from itertools import *
 
 arcpy.env.overwriteOutput = True
@@ -97,16 +97,17 @@ class TargetingTool(object):
                                    warning_msg, ras_file, prev_input)
 
     def wgs_84(self):
-        wkt = "GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],\
-                       PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],\
-                       VERTCS['WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],\
-                       PARAMETER['Vertical_Shift',0.0],PARAMETER['Direction',1.0],UNIT['Meter',1.0]];\
-                       -400 -400 1000000000;-100000 10000;-100000 10000;8.98315284119522E-09;\
-                       0.001;0.001;IsHighPrecision"
 
-        sr = arcpy.SpatialReference()
-        sr.loadFromString(wkt)
-        return sr
+        wkt = "PROJCS['WGS_1984_Web_Mercator_Auxiliary_Sphere'," \
+              "GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984'," \
+              "SPHEROID['WGS_1984',6378137.0,298.257223563]]," \
+              "PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]]," \
+              "PROJECTION['Mercator_Auxiliary_Sphere']," \
+              "PARAMETER['False_Easting',0.0],PARAMETER['False_Northing',0.0]," \
+              "PARAMETER['Central_Meridian',0.0]," \
+              "PARAMETER['Standard_Parallel_1',0.0]," \
+              "PARAMETER['Auxiliary_Sphere_Type',0.0],UNIT['Meter',1.0]]"
+        return wkt
 
     def setFcSpatialWarning(self, in_parameter, ras_ref, prev_input):
         """ Sets feature class spatial warning
@@ -117,18 +118,21 @@ class TargetingTool(object):
                 spatial reference
             Return: None
         """
-        in_fc_param = in_parameter
-        in_fc = in_parameter.valueAsText.replace("\\", "/")
-        in_fc_spataial_ref = arcpy.Describe(in_fc).SpatialReference
-        warning_msg = "{0} spatial reference is different from the input {1}"
-        self.setSpatialWarning(
-            in_fc_spataial_ref,
-            ras_ref,
-            in_fc_param,
-            warning_msg,
-            in_fc,
-            prev_input
-        )
+        try:
+            in_fc_param = in_parameter
+            in_fc = in_parameter.valueAsText.replace("\\", "/")
+            in_fc_spataial_ref = arcpy.Describe(in_fc).SpatialReference
+            warning_msg = "{0} spatial reference is different from the input {1}"
+            self.setSpatialWarning(
+                in_fc_spataial_ref,
+                ras_ref,
+                in_fc_param,
+                warning_msg,
+                in_fc,
+                prev_input
+            )
+        except Exception as ex:
+            arcpy.AddMessage("Error: {}\n".format(ex))
 
     def send_message(self, tool, body, from_email, to_email):
 
@@ -150,20 +154,29 @@ class TargetingTool(object):
             server.starttls()
             server.login(FROM, PASS)
             for email in to_email:
-                message = """\
-                            From: %s
-                            To: %s
-                            Subject: %s
-                            """ % (FROM, email, SUBJECT)
-
-                final_body = '\n\n{}\n'.format(MSG)
-
-                messages = message + final_body
+                final_body = '{}'.format(MSG)
+                messages = "\r\n".join([
+                    "From: {}".format(FROM),
+                    "To: {}".format(email),
+                    "Subject: {}".format(SUBJECT),
+                    "",
+                    "{}".format(final_body)
+                ])
+                # message = """\
+                #             From: %s
+                #             To: %s
+                #             Subject: %s
+                #             """ % (FROM, email, SUBJECT)
+                #
+                #
+                #
+                # messages = message + final_body
                 server.sendmail(from_email, email, messages)
             server.close()
             arcpy.AddMessage('Successfully sent the result to your e-mail!')
-        except:
+        except Exception as ex:
             arcpy.AddMessage("Failed to send the result to your e-mail.")
+            arcpy.AddMessage("Mail Error: {}".format(ex))
 
     def submit_message(self, output_path, parameter, tool):
         if parameter is None:
@@ -187,7 +200,9 @@ class TargetingTool(object):
             else:
                 output_url_list = []
                 for name, out_path in output_path.iteritems():
-                    output_url_row = '{}\n{}'.format(name, out_path)
+                    rel_path = out_path.split('arcgisserver/')[1]
+                    output_link = '{}{}'.format(REST_URL, rel_path)
+                    output_url_row = '{}\n{}'.format(name, output_link)
                     output_url_list.append(output_url_row)
                 output_url = '\n'.join(output_url_list)
 
@@ -475,31 +490,31 @@ class LandSuitability(TargetingTool):
         # Check availability of Spatial Analyst
         spatialAnalystCheckedOut = super(LandSuitability, self).isLicensed()
         return spatialAnalystCheckedOut
-
-    def updateParameters(self, parameters):
-        """ Modify the values and properties of parameters before internal
-            validation is performed.  This method is called whenever a parameter
-            has been changed.
-            Args:
-                parameters: Parameters from the tool.
-            Returns: Parameter values.
-        """
-
-        in_raster = self.prepare_value_table(parameters)
-        for key, j in enumerate([0, 6, 12, 18, 24, 30, 36, 42, 48, 54]):
-            if key == len(in_raster):
-                break
-            if parameters[j].value and parameters[j].altered:
-                paramInRaster = super(LandSuitability,
-                                      self).calculateStatistics(
-                    parameters[j].valueAsText.replace("\\", "/").
-                        replace("'", "")
-                )
-                if paramInRaster is not None:
-                    # Minimum raster value
-                    parameters[j + 1].value = paramInRaster.minimum
-                    # Maximum raster value
-                    parameters[j + 4].value = paramInRaster.maximum
+    #
+    # def updateParameters(self, parameters):
+    #     """ Modify the values and properties of parameters before internal
+    #         validation is performed.  This method is called whenever a parameter
+    #         has been changed.
+    #         Args:
+    #             parameters: Parameters from the tool.
+    #         Returns: Parameter values.
+    #     """
+    #
+    #     in_raster = self.prepare_value_table(parameters)
+    #     for key, j in enumerate([0, 6, 12, 18, 24, 30, 36, 42, 48, 54]):
+    #         if key == len(in_raster):
+    #             break
+    #         if parameters[j].value and parameters[j].altered:
+    #             paramInRaster = super(LandSuitability,
+    #                                   self).calculateStatistics(
+    #                 parameters[j].valueAsText.replace("\\", "/").
+    #                     replace("'", "")
+    #             )
+    #             if paramInRaster is not None:
+    #                 # Minimum raster value
+    #                 parameters[j + 1].value = paramInRaster.minimum
+    #                 # Maximum raster value
+    #                 parameters[j + 4].value = paramInRaster.maximum
 
     def updateValueTable(self, in_raster, opt_from_val, opt_to_val,
                          ras_combine, vtab, ras_file, minVal, maxVal):
@@ -583,101 +598,103 @@ class LandSuitability(TargetingTool):
             value_table.append(column)
         return value_table
 
-    def updateMessages(self, parameters):
-        """ Modify the messages created by internal validation for each tool
-            parameter. This method is called after internal validation.
-            Args:
-                parameters: Parameters from the tool.
-            Returns: Internal validation messages.
-        """
-        if parameters[0].value is not None:
-            prev_input = ""
-            ras_ref = []
-            all_ras_ref = []
-            # in_raster = parameters[0]
-
-            in_raster = self.prepare_value_table(parameters)
-
-            if parameters[0].altered:
-                # The number of rows in the table
-                # num_rows = len(in_raster.values)
-                num_rows = self.get_value_table_count(parameters)
-                ras_max_min = True
-                prev_ras_val = []
-                i = 0
-
-                # Get values from the generator function to show update messages
-                for ras_file, minVal, maxVal, opt_from_val, opt_to_val, \
-                    ras_combine, row_count in self.getRowValue(in_raster,
-                                                               ras_max_min):
-                    i += 1
-                    # Set input raster duplicate warning
-                    if len(prev_ras_val) > 0:
-                        # Set duplicate input warning
-                        super(LandSuitability, self).uniqueValueValidator(
-                            prev_ras_val, ras_file, parameters[0],
-                            field_id=False
-                        )
-                        prev_ras_val.append(ras_file)
-                    else:
-                        prev_ras_val.append(ras_file)
-                    # Get spatial reference for all input raster
-                    spatial_ref = arcpy.Describe(ras_file).SpatialReference
-
-                    all_ras_ref.append(spatial_ref)
-                    # Set raster spatial reference errors
-                    # if i == num_rows:
-                    #     # Set raster spatial warning
-                    #     super(LandSuitability, self).setRasSpatialWarning(
-                    #         ras_file, ras_ref, in_raster, prev_input
-                    #     )
-                    # else:
-                    # Get spatial reference of rasters in value table
-                    spatial_ref = arcpy.Describe(ras_file).SpatialReference
-                    ras_ref.append(spatial_ref)
-                    # Set errors for other value table variables
-                    if opt_from_val.valueAsText == "#":
-                        opt_from_val.setErrorMessage(
-                            "Crop \"Optimal From\" value is missing")
-                        opt_from_val = 0
-                    if opt_to_val.valueAsText == "#":
-                        opt_to_val.setErrorMessage(
-                            "Crop \"Optimal To\" value is missing")
-                    if ras_combine == "#":
-                        ras_combine.setErrorMessage(
-                            "Layer \"Combine\" value is missing")
-                    if opt_to_val.valueAsText == "#" and \
-                                    opt_from_val.valueAsText == "#" and \
-                                    ras_combine == "#":
-                        opt_from_val.setErrorMessage(
-                            "Crop \"Optimal From\" value is missing")
-                        opt_to_val.setErrorMessage(
-                            "Crop \"Optimal To\" value is missing")
-                        ras_combine.setErrorMessage(
-                            "Layer \"Combine\" value is missing")
-
-                    elif row_count == 0 and ras_combine.lower() != "no":
-                        ras_combine.setErrorMessage(
-                            "The first \"Combine\" value should ONLY be \"No\"")
-                    elif num_rows == 1:
-                        ras_file.setWarningMessage(
-                            "One raster in place. Two are recommended")
-            # Set feature class spatial reference errors
-            if parameters[60].value is not None and parameters[60].altered:
-                # Set feature class spatial warning
-                if arcpy.Exists(parameters[60].value):
-                    super(LandSuitability, self).setFcSpatialWarning(
-                        parameters[60], all_ras_ref[-1], prev_input
-                    )
-                    # # Set ESRI grid output file size error
-                    # super(LandSuitability, self).setFileNameLenError(
-                    #     parameters[61])
-                    # return
+    # def updateMessages(self, parameters):
+    #     """ Modify the messages created by internal validation for each tool
+    #         parameter. This method is called after internal validation.
+    #         Args:
+    #             parameters: Parameters from the tool.
+    #         Returns: Internal validation messages.
+    #     """
+    #     if parameters[0].value is not None:
+    #         prev_input = ""
+    #         ras_ref = []
+    #         all_ras_ref = []
+    #         # in_raster = parameters[0]
+    #
+    #         in_raster = self.prepare_value_table(parameters)
+    #
+    #         if parameters[0].altered:
+    #             # The number of rows in the table
+    #             # num_rows = len(in_raster.values)
+    #             num_rows = self.get_value_table_count(parameters)
+    #             ras_max_min = True
+    #             prev_ras_val = []
+    #             i = 0
+    #
+    #             # Get values from the generator function to show update messages
+    #             for ras_file, minVal, maxVal, opt_from_val, opt_to_val, \
+    #                 ras_combine, row_count in self.getRowValue(in_raster,
+    #                                                            ras_max_min):
+    #                 i += 1
+    #                 # Set input raster duplicate warning
+    #                 if len(prev_ras_val) > 0:
+    #                     # Set duplicate input warning
+    #                     super(LandSuitability, self).uniqueValueValidator(
+    #                         prev_ras_val, ras_file, parameters[0],
+    #                         field_id=False
+    #                     )
+    #                     prev_ras_val.append(ras_file)
+    #                 else:
+    #                     prev_ras_val.append(ras_file)
+    #
+    #                 arcpy.AddMessage('{}'.format(ras_file))
+    #                 # Get spatial reference for all input raster
+    #                 spatial_ref = arcpy.Describe(ras_file).SpatialReference
+    #
+    #                 all_ras_ref.append(spatial_ref)
+    #                 # Set raster spatial reference errors
+    #                 # if i == num_rows:
+    #                 #     # Set raster spatial warning
+    #                 #     super(LandSuitability, self).setRasSpatialWarning(
+    #                 #         ras_file, ras_ref, in_raster, prev_input
+    #                 #     )
+    #                 # else:
+    #                 # Get spatial reference of rasters in value table
+    #                 spatial_ref = arcpy.Describe(ras_file).SpatialReference
+    #                 ras_ref.append(spatial_ref)
+    #                 # Set errors for other value table variables
+    #                 if opt_from_val.valueAsText == "#":
+    #                     opt_from_val.setErrorMessage(
+    #                         "Crop \"Optimal From\" value is missing")
+    #                     opt_from_val = 0
+    #                 if opt_to_val.valueAsText == "#":
+    #                     opt_to_val.setErrorMessage(
+    #                         "Crop \"Optimal To\" value is missing")
+    #                 if ras_combine == "#":
+    #                     ras_combine.setErrorMessage(
+    #                         "Layer \"Combine\" value is missing")
+    #                 if opt_to_val.valueAsText == "#" and \
+    #                                 opt_from_val.valueAsText == "#" and \
+    #                                 ras_combine == "#":
+    #                     opt_from_val.setErrorMessage(
+    #                         "Crop \"Optimal From\" value is missing")
+    #                     opt_to_val.setErrorMessage(
+    #                         "Crop \"Optimal To\" value is missing")
+    #                     ras_combine.setErrorMessage(
+    #                         "Layer \"Combine\" value is missing")
+    #
+    #                 elif row_count == 0 and ras_combine.lower() != "no":
+    #                     ras_combine.setErrorMessage(
+    #                         "The first \"Combine\" value should ONLY be \"No\"")
+    #                 elif num_rows == 1:
+    #                     ras_file.setWarningMessage(
+    #                         "One raster in place. Two are recommended")
+    #         # Set feature class spatial reference errors
+    #         if parameters[60].value is not None and parameters[60].altered:
+    #             # Set feature class spatial warning
+    #             if arcpy.Exists(parameters[60].value):
+    #                 super(LandSuitability, self).setFcSpatialWarning(
+    #                     parameters[60], all_ras_ref[-1], prev_input
+    #                 )
+    #                 # # Set ESRI grid output file size error
+    #                 # super(LandSuitability, self).setFileNameLenError(
+    #                 #     parameters[61])
+    #                 # return
 
     def output_name(self, value_table):
         names = []
         for row in value_table:
-            names.append(ntpath.basename(row[0].valueAsText)[0:3])
+            names.append(ntpath.basename(row[0])[0:3])
         name = '_'.join(names)
         name = '{}.tif'.format(name)
         return name
@@ -757,9 +774,12 @@ class LandSuitability(TargetingTool):
             # Calculate minimum rasters from the minimums and maximums calculation outputs
             for j in range(0, num_rows):
                 j += 1
+                # if os.path.isfile(ras_temp_path + "ras_min4_" + str(
+                #     j)):
                 arcpy.AddMessage(
                     "Generating minimum values for {0} and {1}\n".format(
                         "ras_min4_" + str(j), "ras_max4_" + str(j)))
+
                 arcpy.gp.CellStatistics_sa(ras_temp_path + "ras_min4_" + str(
                     j) + ";" + ras_temp_path + "ras_max4_" + str(j),
                                            ras_temp_path + "ras_MnMx_" + str(
@@ -783,16 +803,16 @@ class LandSuitability(TargetingTool):
                 if len(item) > 1:
                     n += 1
 
-                    if u'yes' in item:
-                        item.remove(u'yes')
-                    if u'no' in item:
-                        item.remove(u'no')
+                    # if u'yes' in item:
+                    #     item.remove(u'yes')
+                    # if u'no' in item:
+                    #     item.remove(u'no')
                     # if n <= value_table_count:
                     arcpy.AddMessage(
                         "Generating maximum values from "
                         "minimum values raster files \n"
                     )
-
+                    # if os.path.isfile(ras_temp_path + "rs_MxStat_" + str(n)):
                     arcpy.gp.CellStatistics_sa(
                         item, ras_temp_path + "rs_MxStat_" + str(n),
                         "MAXIMUM", "DATA"
@@ -807,6 +827,7 @@ class LandSuitability(TargetingTool):
                         out_ras_temp = out_ras_temp * arcpy.Raster(f)
 
             if arcpy.Exists(out_ras_temp):
+                # if os.path.isfile(ras_temp_path + "rs_TxTemp"):
                 arcpy.AddMessage("Saving Temporary Output \n")
                 out_ras_temp.save(ras_temp_path + "rs_TxTemp")
                 # Initial temporary raster file for the next calculation
@@ -818,6 +839,7 @@ class LandSuitability(TargetingTool):
                 for j in range(0, n):
                     n_ras += 1
                     j += 1
+                    # if os.path.isfile(ras_temp_path + "rs_MxStat_" + str(j)):
                     arcpy.AddMessage(
                         "Multiplying file {0} with input raster rs_MxStat_{1} \n".format(
                             os.path.basename(str(out_ras_temp)), str(j)))
@@ -826,28 +848,33 @@ class LandSuitability(TargetingTool):
 
             arcpy.AddMessage("Generating suitability output \n")
             # Calculate geometric mean
-            out_ras_temp = out_ras_temp ** (1 / float(n_ras))
+            out_ras_temp ** (1 / float(n_ras))
             arcpy.AddMessage("Saving suitability output\n")
             out_ras_temp.save(out_ras_path)
             arcpy.AddMessage("Suitability output saved! \n")
             arcpy.AddMessage("Creating data input log \n")
             # create parameters log file
             self.createParametersLog(out_ras_path, ras_max_min, in_raster)
-            arcpy.AddMessage("Deleting temporary folder \n")
 
-            output_path = '{}/{}'.format(scratch_path, out_ras)
-            shutil.copy(out_ras_path, output_path)
+            output_path = '{}/{}'.format(scratch_path, 'LandSuitability.tif')
+            #shutil.copy(out_ras_path, output_path)
             # shutil.rmtree(ras_temp_path)  # Delete folder
             # Load output to current MXD
-            arcpy.DefineProjection_management(
-                output_path,
-                self.spatial_ref
+            # arcpy.DefineProjection_management(
+            #     output_path,
+            #     self.spatial_ref
+            # )
+            arcpy.ProjectRaster_management(
+                in_raster=out_ras_path,
+                out_raster=output_path,
+                resampling_type="NEAREST",
+                in_coor_system=self.spatial_ref,
+                out_coor_system=self.spatial_ref
             )
             # output_ras = arcpy.Raster(output_path)
 
             arcpy.SetParameterAsText(61, output_path)
-            self.submit_message(output_path, parameters[62],
-                                self.label)
+            self.submit_message(output_path, parameters[62], self.label)
 
         except Exception as ex:
             tb = sys.exc_info()[2]
@@ -888,8 +915,8 @@ class LandSuitability(TargetingTool):
                                                                    extent.YMax),
                                           ras_temp_path + "ras_mask1_" + str(i),
                                           in_fc, "#", "ClippingGeometry")
-                except Exception:
-                    pass
+                except Exception as ex:
+                    arcpy.AddMessage('Clip Error: {}'.format(ex))
                 # Masked raster minus operation
                 self.rasterMinus(
                     ras_temp_path + "ras_mask1_" + str(i), minVal,
@@ -973,14 +1000,21 @@ class LandSuitability(TargetingTool):
             Return:
                 Raster layer output
         """
+        # try:
+        arcpy.AddMessage('; '.join([str(arcpy.Describe(ras_temp_path + ras_input).datatype)]))
         arcpy.AddMessage(
             "Creating conditional output for {0} \n".format(ras_input)
         )
         arcpy.gp.Con_sa(ras_temp_path + ras_input, comp_val,
                         ras_temp_path + ras_output, ras_temp_path + ras_input,
-                        "\"Value\" " + comp_oper + comp_val)
+                    "\"Value\" " + comp_oper + comp_val)
+        # except Exception as ex:
+        #     # pass
+        #     in_raster = arcpy.sa.Raster(ras_temp_path + ras_input)
+        #     out = arcpy.sa.Con(in_raster, comp_val, '0', "\"Value\" " + comp_oper + comp_val)
+        # out.save(ras_temp_path + ras_output)
         # Delete temporary raster files
-        super(LandSuitability, self).deleteFile(ras_temp_path, ras_input)
+        # super(LandSuitability, self).deleteFile(ras_temp_path, ras_input)
 
     def rasterDivide(self, opt_val, m_val, ras_input, ras_output,
                      ras_temp_path, min_ras):
@@ -1015,6 +1049,7 @@ class LandSuitability(TargetingTool):
                     "Calculating {0} / {1} - {2} \n".format(msg_ras_input,
                                                             opt_val,
                                                             m_val))
+                arcpy.AddMessage('{} - {} ; {}'.format(str(float(opt_val) - float(m_val)), ras_temp_path + ras_input, ras_temp_path + ras_output) )
                 arcpy.gp.Divide_sa(ras_temp_path + ras_input,
                                    str(float(opt_val) - float(m_val)),
                                    ras_temp_path + ras_output)
@@ -1193,11 +1228,28 @@ class LandSimilarity(TargetingTool):
         self.spatial_ref = self.wgs_84()
         self.canRunInBackground = False
 
+        self.parameters = []
+
+    def create_value_table_params(self):
+        parms = []
+
+        for i in range(1, 11):
+            if i == 1:
+                type = 'Required'
+            else:
+                type = 'Optional'
+            parms.append(
+                parameter('Raster Layer {}'.format(i), "in_raster{}".format(i),
+                          "Raster Layer", parameterType=type)
+            )
+
+        return parms
+
     def getParameterInfo(self):
         """Define parameter definitions"""
-        self.parameters = [
-            parameter("Input raster", "in_raster", "Raster Layer",
-                      multiValue=True),
+        self.parameters = self.create_value_table_params()
+
+        self.parameters.extend([
             parameter("Input point layer", "in_point", "Feature Layer"),
             parameter("Output extent", "out_extent", "Feature Layer",
                       parameterType='Optional'),
@@ -1215,11 +1267,29 @@ class LandSimilarity(TargetingTool):
                 'E-mails', 'emails', "GPString",
                 parameterType='Optional'
             )
-
-        ]
-
-        self.parameters[1].filter.list = ["Point"]  # Geometry type filter
+        ])
+        # self.parameters[0].columns = [['Field'], ['Raster Layer']]
+        # self.parameters[0].values = [['Raster Layers']]
+        self.parameters[11].filter.list = ["Point"]  # Geometry type filter
         return self.parameters
+
+    def get_value_table_count(self, parameters):
+
+        count = 0
+        for i in range(0, 11):
+
+            if isinstance(parameters[i].valueAsText, unicode):
+                count = count + 1
+        return count
+
+    def prepare_value_table(self, parameters):
+        row_count = self.get_value_table_count(parameters)
+
+        value_table = []
+        for row in range(0, row_count):
+
+            value_table.append(parameters[row])
+        return value_table
 
     def isLicensed(self):
         """ Set whether tool is licensed to execute."""
@@ -1237,11 +1307,11 @@ class LandSimilarity(TargetingTool):
             Returns: Parameter values.
         """
         if parameters[0].value is not None:
-            if parameters[3].value is None:  # Set initial value
+            if parameters[13].value is None:  # Set initial value
                 root_dir = "C:/Program Files/R"
                 if os.path.isdir(root_dir):
                     # Get R executable file
-                    parameters[3].value = self.getRExecutable(root_dir)
+                    parameters[13].value = self.getRExecutable(root_dir)
 
         return
 
@@ -1261,14 +1331,13 @@ class LandSimilarity(TargetingTool):
         ras_ref = []
         all_ras_ref = []
         in_val_raster = parameters[0]
+        value_table = self.prepare_value_table(parameters)
         if parameters[0].altered:
-            num_rows = len(
-                in_val_raster.values)  # The number of rows in the table
+            num_rows = len(value_table)  # The number of rows in the table
             prev_ras_val = []
             i = 0
             # Get values from the generator function to show update messages
-            for row_count, in_ras_file in self.getRasterFile(
-                    in_val_raster):
+            for row_count, in_ras_file in enumerate(value_table):
                 i += 1
                 # Set input raster duplicate warning
                 if len(prev_ras_val) > 0:
@@ -1290,28 +1359,29 @@ class LandSimilarity(TargetingTool):
                     spatial_ref = arcpy.Describe(
                         in_ras_file).SpatialReference  # Get spatial reference of input rasters
                     ras_ref.append(spatial_ref)
-        if parameters[1].value and parameters[1].altered:
-            super(LandSimilarity, self).setFcSpatialWarning(parameters[1],
+        if parameters[11].value and parameters[11].altered:
+            super(LandSimilarity, self).setFcSpatialWarning(parameters[11],
                                                             all_ras_ref[
                                                                 -1],
                                                             prev_input)  # Set feature class spatial warning
-        if parameters[2].value and parameters[2].altered:
-            super(LandSimilarity, self).setFcSpatialWarning(parameters[2],
+        if parameters[12].value and parameters[12].altered:
+
+            super(LandSimilarity, self).setFcSpatialWarning(parameters[12],
                                                             all_ras_ref[
                                                                 -1],
                                                             prev_input)
-        if parameters[1].value and parameters[1].altered:
-            in_fc = parameters[1].valueAsText.replace("\\", "/")
+        if parameters[11].value and parameters[11].altered:
+            in_fc = parameters[11].valueAsText.replace("\\", "/")
             result = arcpy.GetCount_management(
                 in_fc)  # Get number of features in the input feature class
             if int(result.getOutput(0)) <= 1:
-                parameters[1].setWarningMessage(
+                parameters[11].setWarningMessage(
                     "Input point layer has a single feature. MESS will NOT be calculated.")
-        if parameters[3].value and parameters[3].altered:
-            r_exe_path = parameters[3].valueAsText
+        if parameters[13].value and parameters[13].altered:
+            r_exe_path = parameters[13].valueAsText
             if not r_exe_path.endswith(("\\bin\\R.exe", "\\bin\\x64\\R.exe",
                                         "\\bin\\i386\\R.exe")):
-                parameters[3].setErrorMessage(
+                parameters[13].setErrorMessage(
                     "{0} is not a valid R executable".format(r_exe_path))
                 # super(LandSimilarity, self).setDuplicateNameError(parameters[4],
                 #                                                   parameters[
@@ -1331,7 +1401,7 @@ class LandSimilarity(TargetingTool):
             Returns: Land suitability raster.
         """
         try:
-            r_exe_path = parameters[3].valueAsText
+            r_exe_path = parameters[13].valueAsText
             out_mnobis_ras = 'Mahalanobis_Raster.tif'
             out_mess_ras = 'MESS_Raster.tif'
 
@@ -1345,16 +1415,18 @@ class LandSimilarity(TargetingTool):
             if not os.path.exists(ras_temp_path):
                 os.makedirs(ras_temp_path)
             # Copy point layer to temporary directory
-            in_fc_pt = parameters[1].valueAsText.replace("\\", "/")
+            in_fc_pt = parameters[11].valueAsText.replace("\\", "/")
 
             # Copy dataset from source to destination
             if os.path.isfile(in_fc_pt):
                 in_fc_pt = self.copyDataset(ras_temp_path, in_fc_pt, in_fc_pt)
 
             # raster sample creation
-            if parameters[2].value is not None:
+            if len(parameters[12].valueAsText) > 1:
+
                 arcpy.AddMessage('Getting extent from the feature class.')
-                in_fc = super(LandSimilarity, self).getInputFc(parameters[2])[
+                #arcpy.AddMessage('ext ---{}.'.format(parameters[12].value))
+                in_fc = super(LandSimilarity, self).getInputFc(parameters[12])[
                     "in_fc"]
                 extent = arcpy.Describe(
                     in_fc).extent  # Get feature class extent
@@ -1362,15 +1434,16 @@ class LandSimilarity(TargetingTool):
                 self.createValueSample(
                     parameters, in_fc_pt, ras_temp_path, in_fc, extent
                 )
+
             else:
                 arcpy.AddMessage('Creating value sample without without feature class extent.')
                 self.createValueSample(parameters, in_fc_pt, ras_temp_path,
                                        in_fc=None,
                                        extent=None)  # Create raster cell value sample
-            self.deleteTempFile(parameters,
-                                ras_temp_path)  # Delete temporary files
+            # self.deleteTempFile(parameters,
+            #                     ras_temp_path)  # Delete temporary files
 
-            arcpy.management.Delete(in_fc_pt)  # Delete vector
+            # arcpy.management.Delete(in_fc_pt)  # Delete vector
             out_csv = ras_temp_path + "temp.csv"
             self.writeToCSV(ras_temp_path + "temp.dbf",
                             out_csv)  # Write .dbf table to CSV file
@@ -1390,20 +1463,38 @@ class LandSimilarity(TargetingTool):
             if os.path.isfile(out_mnobis_ras_path):
                 final_mnobis_path = '{}/{}'.format(scratch_folder,
                                                    out_mnobis_ras)
-                arcpy.CopyRaster_management(out_mnobis_ras_path,
-                                            final_mnobis_path,
-                                            colormap_to_RGB=True)
-                arcpy.SetParameterAsText(4, final_mnobis_path)
+                # arcpy.CopyRaster_management(out_mnobis_ras_path,
+                #                             final_mnobis_path,
+                #                             colormap_to_RGB=True)
+                arcpy.ProjectRaster_management(
+                    in_raster=out_mnobis_ras_path,
+                    out_raster=final_mnobis_path,
+                    resampling_type="NEAREST",
+                    in_coor_system=self.spatial_ref,
+                    out_coor_system=self.spatial_ref
+                )
+
+                arcpy.SetParameterAsText(14, final_mnobis_path)
+
                 result_path['Output Mahalanobis Raster'] = final_mnobis_path
 
             if os.path.isfile(out_mess_ras_path):
                 final_mess_path = '{}/{}'.format(scratch_folder, out_mess_ras)
-                arcpy.CopyRaster_management(out_mess_ras_path, final_mess_path,
-                                            colormap_to_RGB=True)
-                arcpy.SetParameterAsText(5, final_mess_path)
+                # arcpy.CopyRaster_management(out_mess_ras_path, final_mess_path,
+                #                             colormap_to_RGB=True)
+                arcpy.ProjectRaster_management(
+                    in_raster=out_mess_ras_path,
+                    out_raster=final_mess_path,
+                    resampling_type="NEAREST",
+                    in_coor_system=self.spatial_ref,
+                    out_coor_system=self.spatial_ref
+                )
+
+                arcpy.SetParameterAsText(15, final_mess_path)
+
                 result_path['Output MESS Raster'] = final_mess_path
 
-            self.submit_message(result_path, parameters[6], self.label)
+            self.submit_message(result_path, parameters[16], self.label)
             # self.load_output_to_mxd(out_mess_ras_path, out_mnobis_ras_path)
             # shutil.rmtree(ras_temp_path)  # Delete directory
 
@@ -1491,56 +1582,75 @@ class LandSimilarity(TargetingTool):
                 extent: Feature class extent.
             Returns: None
         """
-        in_val_raster = parameters[0]
-        num_rows = len(in_val_raster.values)  # The number of rows in the table
+        in_val_raster = self.prepare_value_table(parameters)
+        num_rows = self.get_value_table_count(parameters)  # The number of rows in the table
         first_in_raster = ""
         sample_in_ras = []
-        for row_count, in_ras_file in self.getRasterFile(in_val_raster):
+        for row_count, in_ras_file in enumerate(in_val_raster):
             i = row_count + 1
             if extent is not None:
                 arcpy.AddMessage(
-                    "Clipping {0} \n".format(os.path.basename(in_ras_file))
+                    "Clipping {0} \n".format(in_ras_file.value)
                 )
                 arcpy.AddMessage(
                     "Grid length Path: {}, Filename: {}".format(
-                        os.path.basename(in_ras_file),
+                        in_ras_file.valueAsText,
                         os.path.basename(ras_temp_path) + "\\mask_" + str(i)
                     )
                 )
-                arcpy.Clip_management(
-                    in_ras_file,
-                    "{0} {1} {2} {3}".format(
-                        extent.XMin,
-                        extent.YMin,
-                        extent.XMax,
-                        extent.YMax
-                    ),
-                    ras_temp_path + "mask_" + str(i),
-                    in_fc, "#", "ClippingGeometry"
-                )
+                try:
+                    arcpy.Clip_management(
+                        in_ras_file.value,
+                        "{0} {1} {2} {3}".format(
+                            extent.XMin,
+                            extent.YMin,
+                            extent.XMax,
+                            extent.YMax
+                        ),
+                        ras_temp_path + "mask_" + str(i),
+                        in_fc, "#", "ClippingGeometry"
+                    )
+                    if num_rows > 1:
+                        if i == 1:
+                            first_in_raster = ras_temp_path + "mask_" + str(i)
+                    in_ras_mask = ras_temp_path + "mask_" + str(i)
+                    # Convert raster to ASCII
+                    sample_ras = self.convertRasterToASCII(
+                        num_rows, ras_temp_path,
+                        i, first_in_raster,
+                        in_ras_mask
+                    )
 
-                if num_rows > 1:
-                    if i == 1:
-                        first_in_raster = ras_temp_path + "mask_" + str(i)
-                in_ras_mask = ras_temp_path + "mask_" + str(i)
-                # Convert raster to ASCII
-                sample_ras = self.convertRasterToASCII(
-                    num_rows, ras_temp_path,
-                    i, first_in_raster,
-                    in_ras_mask
-                )
+                    sample_in_ras.append(sample_ras)
+                except Exception as ex:
+                    if num_rows > 1:
+                        if i == 1:
+                            first_in_raster = in_ras_file.value
+                    arcpy.AddMessage("Skipped clipping \n")
+                    sample_ras = self.convertRasterToASCII(
+                        num_rows, ras_temp_path, i, first_in_raster, in_ras_file.valueAsText
+                    )
+                    sample_in_ras.append(sample_ras)
 
-                sample_in_ras.append(sample_ras)
             else:
                 if num_rows > 1:
                     if i == 1:
-                        first_in_raster = in_ras_file
-                sample_ras = self.convertRasterToASCII(num_rows, ras_temp_path,
-                                                       i, first_in_raster,
-                                                       in_ras_file)
+                        first_in_raster = in_ras_file.valueAsText
+
+                sample_ras = self.convertRasterToASCII(
+                    num_rows, ras_temp_path, i, first_in_raster, in_ras_file.valueAsText
+                )
                 sample_in_ras.append(sample_ras)
         arcpy.AddMessage("Creating sample values \n")
-        arcpy.gp.Sample_sa(sample_in_ras, in_fc_pt, ras_temp_path + "temp.dbf",
+        # Process: Sample
+       # arcpy.AddMessage(' and '.join(sample_in_ras))
+        arcpy.AddMessage(
+            "Points count {} \n".format(
+                arcpy.management.GetCount(in_fc_pt))
+        )
+        # arcpy.sa.ExtractMultiValuesToPoints(in_fc_pt, sample_in_ras, "NEAREST")
+        # arcpy.TableToTable_conversion(in_fc_pt, ras_temp_path, "temp.dbf")
+        arcpy.sa.Sample(sample_in_ras, in_fc_pt, ras_temp_path + "temp.dbf",
                            "NEAREST")  # Process: Sample
 
     def convertRasterToASCII(self, num_rows, ras_temp_path, i, first_in_raster,
@@ -1559,7 +1669,7 @@ class LandSimilarity(TargetingTool):
             if i == 1:
                 sample_ras = first_in_raster
                 arcpy.AddMessage("Converting {0} to ASCII file {1} \n".format(
-                    os.path.basename(first_in_raster),
+                    first_in_raster,
                     os.path.basename(ras_temp_path) + "tempAscii_" + str(
                         i) + ".asc"))
                 arcpy.RasterToASCII_conversion(
@@ -1567,30 +1677,33 @@ class LandSimilarity(TargetingTool):
                     ras_temp_path + "tempAscii_" + str(i) + ".asc"
                 )
             else:
-                in_mem_raster = self.applyEnvironment(first_in_raster,
-                                                      in_raster)
-                in_mem_raster.save(ras_temp_path + "ras_envset_" + str(
-                    i))  # Save memory raster to disk
+
+                # in_mem_raster = self.applyEnvironment(first_in_raster, in_raster)
+                in_mem_raster = arcpy.sa.ApplyEnvironment(in_raster)
+                # Save memory raster to disk
+                in_mem_raster.save(ras_temp_path + "ras_envset_" + str(i))
                 sample_ras = ras_temp_path + "ras_envset_" + str(i)
-                arcpy.AddMessage("Converting {0} to ASCII file {1} \n".format(
-                    os.path.basename(ras_temp_path) + "ras_envset_" + str(i),
-                    os.path.basename(ras_temp_path) + "tempAscii_" + str(
-                        i) + ".asc"))
+                arcpy.AddMessage(
+                    "Converting {0} to ASCII file {1} \n".format(
+                        os.path.basename(ras_temp_path) + "ras_envset_" + str(i),
+                        os.path.basename(ras_temp_path) + "tempAscii_" + str(i) + ".asc"
+                    )
+                )
                 arcpy.RasterToASCII_conversion(
-                    ras_temp_path + "ras_envset_" + str(i),
-                    ras_temp_path + "tempAscii_" + str(i) + ".asc")
+                    sample_ras,
+                    ras_temp_path + "tempAscii_" + str(i) + ".asc"
+                )
         else:
             sample_ras = in_raster
             arcpy.AddMessage(
                 "Converting {0} to ASCII file {1} \n".format(
-                    os.path.basename(in_raster),
-                    os.path.basename(ras_temp_path) + "tempAscii_" + str(
-                        i) + ".asc"
+                    in_raster,
+                    os.path.basename(ras_temp_path) + "tempAscii_" + str(i) + ".asc"
                 )
             )
-            arcpy.RasterToASCII_conversion(in_raster,
-                                           ras_temp_path + "tempAscii_" + str(
-                                               i) + ".asc")
+            arcpy.RasterToASCII_conversion(
+                in_raster, ras_temp_path + "tempAscii_" + str(i) + ".asc"
+            )
         return sample_ras
 
     def applyEnvironment(self, first_in_raster, in_raster):
@@ -1607,7 +1720,12 @@ class LandSimilarity(TargetingTool):
 
         arcpy.AddMessage(
             "Applying environment settings for {0}".format(
-                os.path.basename(in_raster)))
+                in_raster))
+        try:
+            if os.path.isfile(in_raster):
+                in_raster = os.path.basename(in_raster)
+        except Exception as ex:
+            in_raster = in_raster.split('\\')[-1]
         in_raster = arcpy.Raster(in_raster)
         return arcpy.sa.ApplyEnvironment(in_raster)
 
@@ -1618,7 +1736,7 @@ class LandSimilarity(TargetingTool):
                 ras_temp_path: Temporary folder
             Returns: None
         """
-        for i in xrange(1, len(parameters[0].values)):
+        for i in xrange(1, self.get_value_table_count(parameters)):
             if arcpy.Exists(ras_temp_path + "mask_" + str(i)):
                 super(LandSimilarity, self).deleteFile(ras_temp_path,
                                                        "mask_" + str(
@@ -1655,9 +1773,9 @@ class LandSimilarity(TargetingTool):
             Returns: None
         """
         i = 0
-        in_val_raster = parameters[0]
+
         #  Get number of rasters
-        for row_count, in_ras_file in self.getRasterFile(in_val_raster):
+        for row_count, in_ras_file in enumerate(self.prepare_value_table(parameters)):
             row_count += 1
             i = row_count
         with open(ras_temp_path + 'out_script.r', 'w') as f:
@@ -1722,7 +1840,7 @@ class LandSimilarity(TargetingTool):
                 ras_temp_path: Temporary folder
             Returns: None
         """
-        r_exe_file = parameters[3].valueAsText.replace("\\",
+        r_exe_file = parameters[13].valueAsText.replace("\\",
                                                        "/")  # Get R.exe file path
 
         maha_ascii_path = ras_temp_path + "MahalanobisDist.asc"
@@ -1772,6 +1890,7 @@ class LandSimilarity(TargetingTool):
                 row_count: Input raster counter
                 in_ras_file: Input raster file from the multi value parameter
         """
+        arcpy.AddMessage("Rasters {}.  \n".format(in_val_raster.valueAsText))
         for i, lst in enumerate(in_val_raster.valueAsText.split(";")):
             row_count = i
             lst_val = super(LandSimilarity, self).formatValueTableData(
@@ -1824,7 +1943,7 @@ class LandStatistics(TargetingTool):
         return parms
 
     def getParameterInfo(self):
-        #TODO move all param definitions to getParameterInfo
+
         """Define parameter definitions"""
         self.parameters = [
             parameter("Input raster zone data", "in_raszone", "Raster Layer"),
@@ -2795,4 +2914,3 @@ class LandStatistics(TargetingTool):
         # Process: Delete Field
         arcpy.DeleteField_management(out_stat_table, "POLY_VAL")
         arcpy.management.Delete(ras_poly)  # Delete polygon
-
