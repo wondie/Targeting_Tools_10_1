@@ -1270,7 +1270,7 @@ class LandSimilarity(TargetingTool):
         ])
         # self.parameters[0].columns = [['Field'], ['Raster Layer']]
         # self.parameters[0].values = [['Raster Layers']]
-        self.parameters[11].filter.list = ["Point"]  # Geometry type filter
+        self.parameters[10].filter.list = ["Point"]  # Geometry type filter
         return self.parameters
 
     def get_value_table_count(self, parameters):
@@ -1286,7 +1286,7 @@ class LandSimilarity(TargetingTool):
         row_count = self.get_value_table_count(parameters)
 
         value_table = []
-        for row in range(0, row_count):
+        for row in range(0, row_count-1):
 
             value_table.append(parameters[row])
         return value_table
@@ -1307,11 +1307,11 @@ class LandSimilarity(TargetingTool):
             Returns: Parameter values.
         """
         if parameters[0].value is not None:
-            if parameters[13].value is None:  # Set initial value
+            if parameters[12].value is None:  # Set initial value
                 root_dir = "C:/Program Files/R"
                 if os.path.isdir(root_dir):
                     # Get R executable file
-                    parameters[13].value = self.getRExecutable(root_dir)
+                    parameters[12].value = self.getRExecutable(root_dir)
 
         return
 
@@ -1359,29 +1359,29 @@ class LandSimilarity(TargetingTool):
                     spatial_ref = arcpy.Describe(
                         in_ras_file).SpatialReference  # Get spatial reference of input rasters
                     ras_ref.append(spatial_ref)
-        if parameters[11].value and parameters[11].altered:
-            super(LandSimilarity, self).setFcSpatialWarning(parameters[11],
+        if parameters[10].value and parameters[10].altered:
+            super(LandSimilarity, self).setFcSpatialWarning(parameters[10],
                                                             all_ras_ref[
                                                                 -1],
                                                             prev_input)  # Set feature class spatial warning
-        if parameters[12].value and parameters[12].altered:
+        if parameters[11].value and parameters[11].altered:
 
-            super(LandSimilarity, self).setFcSpatialWarning(parameters[12],
+            super(LandSimilarity, self).setFcSpatialWarning(parameters[11],
                                                             all_ras_ref[
                                                                 -1],
                                                             prev_input)
-        if parameters[11].value and parameters[11].altered:
-            in_fc = parameters[11].valueAsText.replace("\\", "/")
+        if parameters[10].value and parameters[10].altered:
+            in_fc = parameters[10].valueAsText.replace("\\", "/")
             result = arcpy.GetCount_management(
                 in_fc)  # Get number of features in the input feature class
             if int(result.getOutput(0)) <= 1:
-                parameters[11].setWarningMessage(
+                parameters[10].setWarningMessage(
                     "Input point layer has a single feature. MESS will NOT be calculated.")
-        if parameters[13].value and parameters[13].altered:
-            r_exe_path = parameters[13].valueAsText
+        if parameters[12].value and parameters[12].altered:
+            r_exe_path = parameters[12].valueAsText
             if not r_exe_path.endswith(("\\bin\\R.exe", "\\bin\\x64\\R.exe",
                                         "\\bin\\i386\\R.exe")):
-                parameters[13].setErrorMessage(
+                parameters[12].setErrorMessage(
                     "{0} is not a valid R executable".format(r_exe_path))
                 # super(LandSimilarity, self).setDuplicateNameError(parameters[4],
                 #                                                   parameters[
@@ -1401,7 +1401,7 @@ class LandSimilarity(TargetingTool):
             Returns: Land suitability raster.
         """
         try:
-            r_exe_path = parameters[13].valueAsText
+            r_exe_path = parameters[12].valueAsText
             out_mnobis_ras = 'Mahalanobis_Raster.tif'
             out_mess_ras = 'MESS_Raster.tif'
 
@@ -1415,18 +1415,18 @@ class LandSimilarity(TargetingTool):
             if not os.path.exists(ras_temp_path):
                 os.makedirs(ras_temp_path)
             # Copy point layer to temporary directory
-            in_fc_pt = parameters[11].valueAsText.replace("\\", "/")
+            in_fc_pt = parameters[10].valueAsText.replace("\\", "/")
 
             # Copy dataset from source to destination
             if os.path.isfile(in_fc_pt):
                 in_fc_pt = self.copyDataset(ras_temp_path, in_fc_pt, in_fc_pt)
 
             # raster sample creation
-            if len(parameters[12].valueAsText) > 1:
+            if len(parameters[11].valueAsText) > 1:
 
                 arcpy.AddMessage('Getting extent from the feature class.')
                 #arcpy.AddMessage('ext ---{}.'.format(parameters[12].value))
-                in_fc = super(LandSimilarity, self).getInputFc(parameters[12])[
+                in_fc = super(LandSimilarity, self).getInputFc(parameters[11])[
                     "in_fc"]
                 extent = arcpy.Describe(
                     in_fc).extent  # Get feature class extent
@@ -1474,7 +1474,7 @@ class LandSimilarity(TargetingTool):
                     out_coor_system=self.spatial_ref
                 )
 
-                arcpy.SetParameterAsText(14, final_mnobis_path)
+                arcpy.SetParameterAsText(13, final_mnobis_path)
 
                 result_path['Output Mahalanobis Raster'] = final_mnobis_path
 
@@ -1490,11 +1490,11 @@ class LandSimilarity(TargetingTool):
                     out_coor_system=self.spatial_ref
                 )
 
-                arcpy.SetParameterAsText(15, final_mess_path)
+                arcpy.SetParameterAsText(14, final_mess_path)
 
                 result_path['Output MESS Raster'] = final_mess_path
 
-            self.submit_message(result_path, parameters[16], self.label)
+            self.submit_message(result_path, parameters[15], self.label)
             # self.load_output_to_mxd(out_mess_ras_path, out_mnobis_ras_path)
             # shutil.rmtree(ras_temp_path)  # Delete directory
 
@@ -1840,7 +1840,7 @@ class LandSimilarity(TargetingTool):
                 ras_temp_path: Temporary folder
             Returns: None
         """
-        r_exe_file = parameters[13].valueAsText.replace("\\",
+        r_exe_file = parameters[12].valueAsText.replace("\\",
                                                        "/")  # Get R.exe file path
 
         maha_ascii_path = ras_temp_path + "MahalanobisDist.asc"
